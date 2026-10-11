@@ -1,0 +1,39 @@
+---
+// DRAFT: the four concepts for slide 4, side by side for Alex. Not linked from the deck.
+import '@fontsource-variable/fraunces';
+import '@fontsource-variable/source-sans-3';
+const base = `${import.meta.env.BASE_URL}pitch/variants/`;
+const concepts = [
+  ['side-by-side', 'Side by side', 'Your decisions and your agents’ decisions, one bar per dimension each. Real.'],
+  ['weave', 'The weave', 'One thread per decision, crossed by the seven dimensions. Real.'],
+  ['two-threads', 'Two threads', 'A typical decision of yours and of your agents’: seven threads from one knot. Real.'],
+  ['impact-cards', 'Who held the big ones?', 'Made-up decisions on an impact axis that is coming. Illustrative.'],
+];
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>DRAFT · Slide 4 concepts · Loomtracer</title>
+  <style>
+    body{margin:0;background:#FDF8F4;color:#332B32;font-family:'Source Sans 3 Variable',sans-serif;font-size:19px;line-height:1.5}
+    main{max-width:1100px;margin:auto;padding:40px 24px}
+    h1{font-family:'Fraunces Variable',serif;font-weight:600;font-size:34px;line-height:1.1;margin:0 0 8px}
+    ol{padding-left:22px}li{margin:14px 0}a{color:#332B32;font-weight:600}
+    iframe{width:100%;aspect-ratio:16/9;border:1px solid #332B32;margin-top:8px}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Slide 4, four concepts (draft)</h1>
+    <p>Not on the live deck. Each opens on its own page; the frames below are the same pages.</p>
+    <ol>
+      {concepts.map(([slug, name, line]) => (
+        <li><a href={`${base}${slug}/`}>{name}</a>: {line}<iframe src={`${base}${slug}/`} title={name} loading="lazy"></iframe></li>
+      ))}
+    </ol>
+  </main>
+</body>
+</html>
