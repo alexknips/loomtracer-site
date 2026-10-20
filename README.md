@@ -26,6 +26,7 @@ website/                  Astro + Starlight site
   src/content/docs/       the docs
   vercel.json             redirects: the old /demo/ links go to the hosted demo
 pitch-screens/            source captures plus the Loomtracer PDF and contact-sheet preview
+brand/                    Jeff's brand kit: guide, tokens, logo SVGs; agents read it through CLAUDE.md
 CLAIMS.md                 every claim on the landing and use cases pages, with its evidence (release, changelog section, plan)
 .github/workflows/
   reference-docs.yml          fail if the docs drift from the latest hivemind release
