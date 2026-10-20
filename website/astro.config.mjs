@@ -1,14 +1,11 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import tailwind from '@astrojs/tailwind';
-import { demoFallback } from './src/demo-fallback.mjs';
 
-// Where the site is served: GitHub Pages at alexknips.github.io/hivemind-site/ today. Once
-// www.loomtracer.ai points at GitHub Pages, this line becomes 'https://www.loomtracer.ai/' and the
-// custom domain is set in the repository's Pages settings. Every internal link reads the base from
-// here (import.meta.env.BASE_URL), and so does scripts/rebuild-demo.sh. The static demo in
-// public/demo/ is built for the old base: rebuild it then, or point src/data/demo.ts at the hosted demo.
-const siteUrl = new URL('https://alexknips.github.io/hivemind-site/');
+// Where the site is served: https://loomtracer.ai/, on Vercel (project loomtracer-site; every push
+// to main deploys, every pull request gets a preview). Every internal link reads the base from here
+// (import.meta.env.BASE_URL). The demo is not part of the site: src/data/demo.ts holds its address.
+const siteUrl = new URL('https://loomtracer.ai/');
 const base = siteUrl.pathname;
 
 export default defineConfig({
@@ -34,7 +31,7 @@ export default defineConfig({
       },
       description: 'Memory for decisions: what you and your coding agents decided, and why.',
       social: [
-        { icon: 'github', label: 'GitHub', href: 'https://github.com/alexknips/hivemind' },
+        { icon: 'github', label: 'GitHub', href: 'https://github.com/alexknips/loomtracer' },
       ],
       sidebar: [
         {
@@ -67,9 +64,6 @@ export default defineConfig({
         },
       ],
       customCss: ['./src/styles/custom.css'],
-      // On the site's 404 page at a path under demo/, show the demo app instead
-      // (src/demo-fallback.mjs); on every other page it does nothing.
-      head: [{ tag: 'script', content: `(${demoFallback})(${JSON.stringify(`${base}demo/`)});` }],
     }),
     tailwind({ applyBaseStyles: false }),
   ],

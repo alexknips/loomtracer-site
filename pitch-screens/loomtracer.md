@@ -10,7 +10,7 @@ Five slides adapted from Alex's original pitch and refined by Jeff: introduction
 
 ## Run and review
 
-From `website/`, run `npm ci`, `npm run build`, then `npm run preview`. Open `/hivemind-site/pitch/` on the preview server. The presenter script and manual rehearsal timer are at `/hivemind-site/pitch/presenter/`.
+From `website/`, run `npm ci`, `npm run build`, then `npm run preview`. Open `/pitch/` on the preview server. The presenter script and manual rehearsal timer are at `/pitch/presenter/`.
 
 Left/right arrows, Page Up/Down, Home/End and Space navigate on desktop; F requests full screen. Narrow screens stack the slides and allow horizontal scrolling inside the diagram. Presenter selection synchronizes with the audience window; the timer never advances slides.
 
@@ -28,4 +28,4 @@ The displayed URL and QR code both target `https://www.loomtracer.ai`, a user-su
 
 The former product screenshots are no longer shown on slide 4. The original Claude Code capture remains in this repository with [its original provenance](README.md).
 
-Astro, the GitHub Pages base path, and deployment workflow are unchanged. A branch or PR does not deploy the update; Pages publishes after changes reach `main`.
+Astro is unchanged. Since 2026-10-08 the site is served from the root of https://loomtracer.ai, on Vercel: a pull request gets a Vercel preview, and the site publishes after changes reach `main`.

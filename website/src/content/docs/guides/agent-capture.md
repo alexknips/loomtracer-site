@@ -9,7 +9,7 @@ capture decisions directly into the local ledger or a self-hosted cell — no
 
 This page covers the write path. For consulting, verifying, and contesting
 decisions that already exist by description rather than by id, see the
-[`hivemind-context` plugin](https://github.com/alexknips/hivemind/blob/master/docs/AGENT_DECISION_CONTEXT.md).
+[`hivemind-context` plugin](https://github.com/alexknips/loomtracer/blob/master/docs/AGENT_DECISION_CONTEXT.md).
 
 ## Two capture paths
 
@@ -146,7 +146,7 @@ This means you can self-host Loomtracer with zero external API keys and still ge
 fully classified decisions — you just run the classify command rather than
 relying on the server's background worker.
 
-See the [keyless capture walkthrough](https://github.com/alexknips/hivemind/blob/master/docs/KEYLESS_CAPTURE.md)
+See the [keyless capture walkthrough](https://github.com/alexknips/loomtracer/blob/master/docs/KEYLESS_CAPTURE.md)
 for a zero-to-first-decision guide.
 
 ## What agents should capture

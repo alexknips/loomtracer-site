@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    { "source": "/demo", "destination": "https://loomtracer.vercel.app/demo", "permanent": true },
+    { "source": "/demo/(.*)", "destination": "https://loomtracer.vercel.app/demo", "permanent": true },
+    { "source": "/demo-preview", "destination": "https://loomtracer.vercel.app/demo", "permanent": true },
+    { "source": "/demo-preview/(.*)", "destination": "https://loomtracer.vercel.app/demo", "permanent": true }
+  ]
+}

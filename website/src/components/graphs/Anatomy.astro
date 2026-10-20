@@ -7,7 +7,7 @@
 // coming next and planned is on the use cases page.
 import Frame from './Frame.astro';
 import { anatomyAlt, anatomyNarrow, anatomyParts, anatomyWide } from '../../data/graph-stories';
-import { demoHref } from '../../data/demo';
+import { DEMO_URL } from '../../data/demo';
 
 const idle = 'Hover or tap a part of the graph, or a name above, to read one line about it.';
 ---
@@ -46,8 +46,7 @@ const idle = 'Hover or tap a part of the graph, or a name above, to read one lin
   </div>
 
   <p class="mt-5 pt-4 border-t border-border text-sm text-muted-foreground">
-    <a href={demoHref('graph/the-jury-finds-the-defendant-not-guilty/')} class="link">Open a real one in the demo &rarr;</a>
-    <span class="ml-1">the jury's verdict</span>
+    <a href={DEMO_URL} class="link">Try the demo &rarr;</a>
   </p>
 </div>
 

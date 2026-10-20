@@ -25,8 +25,8 @@ export interface Story {
   id: string;
   title: string;
   steps: Step[];
-  /** A page of the demo (a path for demoHref in demo.ts) and a line saying what it shows. */
-  demo?: { path: string; text: string };
+  /** A "Try the demo" link under the story (to DEMO_URL in demo.ts). */
+  demo?: boolean;
 }
 
 const W = 340;
@@ -230,10 +230,7 @@ export const storyRevise: Story = {
       },
     },
   ],
-  demo: {
-    path: 'decisions/the-jury-finds-the-defendant-guilty/',
-    text: 'the guilty verdict: juror 8 rejected it, and not guilty superseded it.',
-  },
+  demo: true,
 };
 
 // ── 6. Who decided: coloured by who made the call (one drawing) ─────────────
@@ -272,10 +269,7 @@ export const storyWho: Story = {
       frame: { w: W, h: 230, nodes: whoNodes, edges: whoEdges },
     },
   ],
-  demo: {
-    path: 'decisions/retry-a-failed-location-ping-upload-up-to-5-times-with-expon/',
-    text: 'retries an agent chose on its own.',
-  },
+  demo: true,
 };
 
 // ── 5. One assumption falls: a café ─────────────────────────────────────────
@@ -359,10 +353,7 @@ export const storyAssumption: Story = {
       },
     },
   ],
-  demo: {
-    path: 'decisions/cache-driver-profiles-in-memory-keyed-by-the-driver-s-numeri/',
-    text: 'a cache resting on "driver ids never change", which a migration refutes.',
-  },
+  demo: true,
 };
 
 // ── 4. An honest bet, called out: a newsletter ──────────────────────────────
@@ -490,10 +481,7 @@ export const storyLostOption: Story = {
       },
     },
   ],
-  demo: {
-    path: 'decisions/the-jury-finds-the-defendant-not-guilty/',
-    text: 'the jury\'s verdict and the option that lost.',
-  },
+  demo: true,
 };
 
 // ── 3. Decisions not being made: a café's open questions ────────────────────

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Commit what hivemind's generate-reference just rewrote, and nothing else.
 #
-# generate-reference (src/bin/generate_reference.rs in alexknips/hivemind)
+# generate-reference (src/bin/generate_reference.rs in alexknips/loomtracer)
 # writes exactly these files:
 #   website/src/content/docs/reference/mcp-tools.md   the whole file, from mcp::tool_definitions()
 #   website/src/content/docs/guides/mcp-setup.md      only the digits of its "N tools" mentions

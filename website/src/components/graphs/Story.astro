@@ -6,7 +6,7 @@
 // slot) in the next column. A one-step story has no step label: the title says it.
 import Frame from './Frame.astro';
 import type { Story } from '../../data/graph-stories';
-import { demoHref } from '../../data/demo';
+import { DEMO_URL } from '../../data/demo';
 
 interface Props {
   story: Story;
@@ -40,8 +40,7 @@ const span = n === 1 ? 'lg:col-span-1 lg:grid-cols-1' : 'lg:col-span-2 lg:grid-c
   {!keyBeside && <slot />}
   {story.demo && (
     <p class="text-sm text-muted-foreground leading-relaxed mt-5">
-      <a href={demoHref(story.demo.path)} class="link">Open it in the demo &rarr;</a>
-      <span class="ml-1">{story.demo.text}</span>
+      <a href={DEMO_URL} class="link">Try the demo &rarr;</a>
     </p>
   )}
 </figure>

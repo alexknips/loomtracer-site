@@ -4,15 +4,15 @@ name: Regenerate reference docs
 # of the "N tools" mentions in guides/mcp-setup.md and the homepage) come from
 # hivemind's own generate-reference binary. This regenerates them from the
 # LATEST hivemind RELEASE (the site documents what people can install, not
-# master), commits what changed to main, then runs the Pages deploy and the
-# "Reference docs in sync" check on the new main.
+# master), commits what changed to main, then runs the "Reference docs in
+# sync" check on the new main. Vercel deploys the push itself.
 #
 # It never touches the hand-written parts: reference/cli.md and the
 # "Available tools" table in guides/mcp-setup.md are written by hand at
 # release time. .github/scripts/commit-generated-reference.sh refuses to
 # commit anything else.
 #
-# A release in alexknips/hivemind cannot trigger a workflow here without a
+# A release in alexknips/loomtracer cannot trigger a workflow here without a
 # cross-repo token, so this polls every six hours. Right after a release, run
 # it by hand: Actions -> "Regenerate reference docs" -> Run workflow.
 
@@ -23,7 +23,7 @@ on:
 
 permissions:
   contents: write   # commit the regenerated files to main
-  actions: write    # a GITHUB_TOKEN push triggers no workflow, so run deploy and the check explicitly
+  actions: write    # a GITHUB_TOKEN push triggers no workflow, so run the check explicitly
 
 concurrency:
   group: regenerate-reference
@@ -46,7 +46,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag=$(gh api repos/alexknips/hivemind/releases/latest --jq .tag_name)
+          tag=$(gh api repos/alexknips/loomtracer/releases/latest --jq .tag_name)
           test -n "$tag"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "hivemind latest release: $tag"
@@ -54,7 +54,7 @@ jobs:
       - name: Check out hivemind at that release
         uses: actions/checkout@v4
         with:
-          repository: alexknips/hivemind
+          repository: alexknips/loomtracer
           ref: ${{ steps.release.outputs.tag }}
           path: hivemind
 
@@ -87,10 +87,11 @@ jobs:
           git pull --rebase origin main
           git push origin HEAD:main
 
-      - name: Deploy the site and re-run the sync check on the new main
+      # Vercel's GitHub app deploys pushes to main, so there is no deploy step
+      # here; only the check needs running by hand.
+      - name: Re-run the sync check on the new main
         if: steps.commit.outputs.committed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh workflow run deploy.yml --ref main -R "$GITHUB_REPOSITORY"
           gh workflow run reference-docs.yml --ref main -R "$GITHUB_REPOSITORY"
