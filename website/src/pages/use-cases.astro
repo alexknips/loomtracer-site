@@ -4,7 +4,8 @@
 // works today. Since 2026-10-02 the one home for what comes next and what is
 // planned: the landing page shows only what works today, and the drawings of
 // the bet, the questions still waiting and the drifting projects moved here,
-// each told once. The same header, footer, cards and graphs as the landing
+// each told once. Since v0.8.0 (2026-10-23) the bet and the questions work
+// today; only the drifting projects carry planned parts. The same header, footer, cards and graphs as the landing
 // page, on the app's design tokens. Every claim here is listed with its
 // evidence in CLAIMS.md.
 import '../styles/global.css';
@@ -41,70 +42,70 @@ const today: Card[] = [
     title: 'Ask "why did we choose this?"',
     who: 'Human · Agent',
     body: 'In a fresh session, with no chat history: the rationale, the options chosen and rejected, who decided, and whether it still holds. Describe the decision; no id needed.',
-    cmd: '<span class="text-muted-foreground">hivemind query</span> <span class="font-medium">why</span> "sqlite for local storage"',
+    cmd: '<span class="text-muted-foreground">loomtracer query</span> <span class="font-medium">why</span> "sqlite for local storage"',
     icon: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
   },
   {
     title: 'Ask "did it hold up?"',
     who: 'Human · Agent',
     body: 'Whether the decision still stands, or was replaced, disputed, or rests on a premise that no longer holds. With the reasons, from the record.',
-    cmd: '<span class="text-muted-foreground">hivemind query</span> <span class="font-medium">verify</span> "sqlite for local storage"',
+    cmd: '<span class="text-muted-foreground">loomtracer query</span> <span class="font-medium">verify</span> "sqlite for local storage"',
     icon: '<path d="M20 6 9 17l-5-5"/>',
   },
   {
     title: 'Disagreement stays on the record',
     who: 'Human · Agent',
     body: 'Push back on a decision and both sides are kept. It reads <b class="font-semibold text-foreground">contested</b>, a state you can ask about, not a lost thread.',
-    cmd: '<span class="text-muted-foreground">hivemind</span> <span class="font-medium">disagree</span> "sqlite for local storage" --reason …',
+    cmd: '<span class="text-muted-foreground">loomtracer</span> <span class="font-medium">disagree</span> "sqlite for local storage" --reason …',
     icon: '<path d="M4 8h13l-3-3m3 3-3 3"/><path d="M20 16H7l3-3m-3 3 3 3"/>',
   },
   {
     title: 'Replace without erasing',
     who: 'Human · Agent',
     body: 'Record the new decision as replacing the old one. The old one reads <b class="font-semibold text-foreground">superseded</b> and says what replaced it; the whole chain stays, and you can follow it back to the first proposal.',
-    cmd: '<span class="text-muted-foreground">hivemind</span> <span class="font-medium">supersede</span> "sqlite for local storage" --title … --rationale …',
+    cmd: '<span class="text-muted-foreground">loomtracer</span> <span class="font-medium">supersede</span> "sqlite for local storage" --title … --rationale …',
     icon: '<path d="M4 7h9a4 4 0 0 1 4 4v0"/><path d="m14 4 3 3-3 3"/><path d="M20 17h-9a4 4 0 0 1-4-4v0"/><path d="m10 20-3-3 3-3"/>',
   },
   {
     title: 'Every decision says what it rests on',
     who: 'Human · Agent',
     body: 'An earlier decision, something observed, an assumption, or a bet with a date to check. When that premise is later replaced or refuted, the decisions built on it read <b class="font-semibold text-foreground">stale</b>. The capture plugin makes your agent answer this before it records: with nothing to go on, it records a bet, not made-up evidence, and asks you for the reason. A capture that names nothing is refused.',
-    cmd: '<span class="text-muted-foreground">hivemind emit decision.capture</span> … <span class="font-medium">--rests-on-decision</span> "ids never change"',
+    cmd: '<span class="text-muted-foreground">loomtracer emit decision.capture</span> … <span class="font-medium">--rests-on-decision</span> "ids never change"',
     icon: '<path d="M12 3v6"/><path d="M6 9h12"/><path d="M6 9v4M12 9v4M18 9v4"/><path d="M4 13h4M10 13h4M16 13h4"/><path d="M4 13l-1 4h6l-1-4M10 13l-1 4h6l-1-4M16 13l-1 4h6l-1-4"/>',
   },
   {
     title: '"What should I know before I touch this?"',
     who: 'Agent',
     body: 'The decisions about the files your agent is changing, read from the current diff. No question to type, and each one says whether it still holds.',
-    cmd: '<span class="text-muted-foreground">hivemind query</span> <span class="font-medium">situational</span>',
+    cmd: '<span class="text-muted-foreground">loomtracer query</span> <span class="font-medium">situational</span>',
     icon: '<path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6Z"/><circle cx="12" cy="12" r="2.5"/>',
   },
   {
     title: 'Several projects, one record',
     who: 'Human · Agent',
     body: 'Every decision carries its project. A question asked from one project also looks in the project it is part of and the ones it depends on, one hop, and says where it stopped looking.',
-    cmd: '<span class="text-muted-foreground">hivemind query situational</span> <span class="font-medium">--project</span> mobile-client',
+    cmd: '<span class="text-muted-foreground">loomtracer query situational</span> <span class="font-medium">--project</span> mobile-client',
     icon: '<rect x="3" y="4" width="8" height="7" rx="1.5"/><rect x="13" y="4" width="8" height="7" rx="1.5"/><rect x="8" y="14" width="8" height="7" rx="1.5"/><path d="M7 11v3M17 11v3"/>',
   },
   {
     title: 'Look over a week of agent decisions',
     who: 'Human',
     body: 'What your agents decided this week, one by one: accept, dispute or replace each, in the terminal, without watching them live.',
-    cmd: `<span class="text-muted-foreground">hivemind</span> <span class="font-medium">review</span> --actor 'agent:*' --since 7d`,
+    cmd: `<span class="text-muted-foreground">loomtracer</span> <span class="font-medium">review</span> --actor 'agent:*' --since 7d`,
     icon: '<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/><path d="M9 15l2 2 4-4"/>',
   },
   {
     title: 'The decision log as Markdown',
     who: 'Human',
     body: 'Export every decision as a tree of Markdown files grouped by project, an index first. Readable without Loomtracer, and it can live in your repo.',
-    cmd: '<span class="text-muted-foreground">hivemind</span> <span class="font-medium">export</span> --format markdown --out ./decisions/',
+    cmd: '<span class="text-muted-foreground">loomtracer</span> <span class="font-medium">export</span> --format markdown --out ./decisions/',
     icon: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 11v6m-3-3 3 3 3-3"/>',
   },
   {
     title: 'Turn existing notes into decisions',
     who: 'Human',
     body: 'Import the <code class="code">Decision:</code> blocks from your docs. Each becomes a decision carrying its source, and lands as unreviewed until you look at it.',
-    cmd: '<span class="text-muted-foreground">hivemind</span> <span class="font-medium">import documents</span> ./notes/',
+    cmd: '<span class="text-muted-foreground">loomtracer</span> <span class="font-medium">import documents</span> ./notes/',
     icon: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 16h4"/>',
   },
   {
@@ -112,8 +113,38 @@ const today: Card[] = [
     badge: 'Works today · experimental',
     who: 'Human',
     body: 'Pull decision candidates from a Google Doc or a file in git history. Each import records the source at the revision it read, so the citation stays honest as the document moves. Google Docs only; Confluence is not supported yet.',
-    cmd: '<span class="text-muted-foreground">hivemind</span> <span class="font-medium">import connector</span> --url &lt;gdocs-url&gt;',
+    cmd: '<span class="text-muted-foreground">loomtracer</span> <span class="font-medium">import connector run</span> --url &lt;gdocs-url&gt;',
     icon: '<path d="M14 4H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8z"/><path d="M14 4v4h4"/><path d="M9.5 14.5a2 2 0 0 1 2-2h1m1 4a2 2 0 0 1-2 2h-1"/><path d="M11 15h3"/>',
+  },
+  {
+    title: 'A disagreement travels',
+    who: 'Human · Agent',
+    body: 'When a decision is replaced or disputed, every decision resting on it gets an open <b class="font-semibold text-foreground">re-examine</b> item, closed only by an explicit "still holds" or by its own replacement. The replaced decision shows how many of them are done, so a half-finished reversal is visible instead of quietly forgotten.',
+    cmd: '<span class="text-muted-foreground">loomtracer</span> <span class="font-medium">reexamine</span>\n<span class="text-muted-foreground">loomtracer</span> <span class="font-medium">reaffirm</span> "cache records by id" --because …',
+    icon: '<path d="M12 4v16"/><path d="M12 8l-5 3M12 8l5 3"/><circle cx="7" cy="13" r="2"/><circle cx="17" cy="13" r="2"/><path d="M7 15v4M17 15v4"/>',
+  },
+  {
+    title: 'How well made was this decision?',
+    who: 'Human · Agent',
+    body: 'A profile on seven dimensions: framing, alternatives, information, reasoning, values and trade-offs, bias exposure, calibration. Each line names the recorded facts it was read from, and says "not assessed" where there is nothing to read. Not a grade, and never a mark against changing your mind.',
+    cmd: '<span class="text-muted-foreground">loomtracer query</span> <span class="font-medium">score_decision</span> --id …',
+    icon: '<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>',
+  },
+  {
+    title: 'An honest bet, called out',
+    who: 'Human · Agent',
+    body: 'With nothing yet to rest a decision on, name a bet and a date to check it. Calling it out is expected, not blame. Once the date passes, it is listed among what needs a look.',
+    cmd: '<span class="text-muted-foreground">loomtracer query</span> <span class="font-medium">get_suggestions</span>',
+    icon: '<path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="5"/>',
+    story: storyBet,
+  },
+  {
+    title: 'Questions nobody has decided yet',
+    who: 'Human · Agent',
+    body: 'Ask a question before anything answers it, and it waits, with its age, until a decision answers it. What is contested and what changed are lists of their own.',
+    cmd: '<span class="text-muted-foreground">loomtracer</span> <span class="font-medium">ask</span> "Open on Sundays?"\n<span class="text-muted-foreground">loomtracer query</span> <span class="font-medium">get_waiting_requests</span>',
+    icon: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6"/><path d="M12 17h.01"/>',
+    story: storyWaiting,
   },
 ];
 
@@ -124,35 +155,13 @@ const next: Card[] = [
     icon: '<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18M8 21h8"/><path d="M7 13h4M7 15.5h7"/>',
   },
   {
-    title: 'How well made was this decision?',
-    body: 'A profile on seven dimensions: framing, alternatives, information, reasoning, values and trade-offs, bias exposure, calibration. Each line names the recorded facts it was read from, and says "not assessed" where there is nothing to read. Not a grade, and never a mark against changing your mind.',
-    icon: '<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>',
-  },
-  {
     title: 'Capture that runs all day',
     body: 'Your sessions with your agents are read as they happen and the decisions in them are recorded, with their options, reasons and who decided, so nobody has to say "record this". The pieces are in the current release; the setup that makes it one step is not.',
     icon: '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
   },
-  {
-    title: 'An honest bet, called out',
-    body: 'With nothing yet to rest a decision on, name a bet and a date to check it. Calling it out is expected, not blame. The drawing marks the one part that is coming next; the rest works today.',
-    icon: '<path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="5"/>',
-    story: storyBet,
-  },
-  {
-    title: 'Questions nobody has decided yet',
-    body: 'Ask a question before anything answers it, and it waits, with its age, until a decision answers it. Planned: the same list beside what is contested and what changed.',
-    icon: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6"/><path d="M12 17h.01"/>',
-    story: storyWaiting,
-  },
 ];
 
 const planned: Card[] = [
-  {
-    title: 'A disagreement travels',
-    body: 'When a decision is replaced or disputed, every decision resting on it gets an open <b class="font-semibold text-foreground">re-examine</b> item, closed only by an explicit "still holds" or by its own replacement. The new decision shows how many of them are done, so a half-finished reversal is visible instead of quietly forgotten.',
-    icon: '<path d="M12 4v16"/><path d="M12 8l-5 3M12 8l5 3"/><circle cx="7" cy="13" r="2"/><circle cx="17" cy="13" r="2"/><path d="M7 15v4M17 15v4"/>',
-  },
   {
     title: 'Speed, consistency and flexibility',
     body: 'Across your decisions with your agents: how fast you get from question to decision, how often a new decision agrees with the ones already in place, and how often you change your mind when evidence arrives. Shown side by side, never as one number, never as a ranking. A fast reversal on new evidence reads as a strength.',
@@ -175,7 +184,7 @@ const sections = [
   {
     id: 'today',
     title: 'What works today',
-    tag: 'v0.7.0',
+    tag: 'v0.8.0',
     tagClass: 'bg-success-soft text-success-foreground',
     note: 'Every write says who made it and is never edited or deleted. Status (proposed, accepted, contested, superseded) follows from the record, never from a label somebody sets by hand.',
     badge: 'Works today',
@@ -241,19 +250,18 @@ const sections = [
       <p class="text-md sm:text-lg text-foreground max-w-2xl leading-relaxed mb-8">
         Concrete ways one person and their agents put Loomtracer to work: what works today, what is coming next,
         and what is planned. Every card for today shows the actual command of Loomtracer&rsquo;s command-line tool,
-        <code class="code">hivemind</code>, or the tool call; the drawings are made-up examples.
+        <code class="code">loomtracer</code>, or the tool call; the drawings are made-up examples.
       </p>
       <!-- The legend: the site's only one, since the landing page shows only what works today. The second
            line is the key to the drawings' marks. -->
       <p class="text-sm text-muted-foreground flex flex-wrap gap-x-6 gap-y-2">
-        <span class="inline-flex items-center gap-2"><span class="badge bg-success-soft text-success-foreground">Works today</span> in v0.7.0 (25 Sep 2026)</span>
+        <span class="inline-flex items-center gap-2"><span class="badge bg-success-soft text-success-foreground">Works today</span> in v0.8.0 (23 Oct 2026)</span>
         <span class="inline-flex items-center gap-2"><span class="badge badge-warning">Coming next</span> merged or under way, not yet released</span>
         <span class="inline-flex items-center gap-2"><span class="badge badge-outline">Planned</span> decided, not built</span>
       </p>
       <p class="text-sm text-muted-foreground flex flex-wrap items-center gap-x-5 gap-y-2 mt-3">
         <span>In the drawings:</span>
         <span class="inline-flex items-center gap-2"><span class="hg-key" aria-hidden="true"></span> works today</span>
-        <span class="inline-flex items-center gap-2"><span class="font-mono text-2xs tracking-wide">COMING NEXT</span> not yet released</span>
         <span class="inline-flex items-center gap-2"><span class="hg-key hg-key--dashed" aria-hidden="true"></span><span class="font-mono text-2xs tracking-wide">PLANNED</span> not built</span>
       </p>
     </section>

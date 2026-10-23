@@ -1,15 +1,14 @@
 /*
  * The site's graphs: the anatomy of a decision and four stories on the landing page
- * (everything there works in v0.7.0), and three stories on the use cases page (the bet,
- * the questions still waiting, the two lanes), which carry the parts that come next or
- * are planned. A story has one to three steps. Every node is placed by hand in a
+ * (everything there works in v0.8.0), and three stories on the use cases page (the bet,
+ * the questions still waiting, the two lanes); only the two lanes carry planned parts. A story has one to three steps. Every node is placed by hand in a
  * 340-wide frame (the anatomy's wide variant is 1000 wide); graph.ts turns them into
  * SVG. Arrows run from the newer node to the older one, and the edge words are the
- * product's (docs/GRAPH_CONTRACT.md in hivemind).
+ * product's (docs/GRAPH_CONTRACT.md in loomtracer).
  *
- * Status, as CLAIMS.md at the repo root records it: solid parts work in v0.7.0; parts
- * marked COMING NEXT are merged, not yet released; dashed parts marked PLANNED are
- * decided, not built. The examples are made up; the café, the newsletter and the jury
+ * Status, as CLAIMS.md at the repo root records it: solid parts work in v0.8.0; parts
+ * marked COMING NEXT would be merged, not yet released (none since v0.8.0); dashed parts
+ * marked PLANNED are decided, not built. The examples are made up; the café, the newsletter and the jury
  * room are there on purpose, since Loomtracer is not only for engineering.
  */
 import type { GEdge, GFrame, GNode } from '../components/graphs/graph';
@@ -386,14 +385,14 @@ export const storyBet: Story = {
     {
       label: '1 November passes',
       caption:
-        'Nothing was recorded either way. Ask about the decision and the bet reads past its check date. Coming next: Loomtracer lists it among what needs a look, without being asked.',
-      alt: 'The same graph after 1 November. The bet is marked past its check date. The decision is marked needs a look, labelled coming next.',
+        'Nothing was recorded either way. Ask about the decision and the bet reads past its check date, and Loomtracer lists it among what needs a look, without being asked.',
+      alt: 'The same graph after 1 November. The bet is marked past its check date. The decision is marked needs a look.',
       frame: {
         w: W,
         h: 214,
         nodes: patch(betNodes, {
           b: { state: 'look', badge: { text: 'past its check date', tone: 'warning' } },
-          d: { state: 'look', badge: { text: 'needs a look', tone: 'warning' }, status: 'COMING NEXT' },
+          d: { state: 'look', badge: { text: 'needs a look', tone: 'warning' } },
         }),
         edges: betEdges,
       },
