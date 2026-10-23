@@ -3,7 +3,7 @@ title: MCP Setup
 description: Connect Claude Code, Codex, Cursor, or any MCP client to your self-hosted Loomtracer.
 ---
 
-Loomtracer's command-line tool, `hivemind`, exposes its full decision-graph surface as an MCP server. Connect your agents
+Loomtracer's command-line tool, `loomtracer`, exposes its full decision-graph surface as an MCP server. Connect your agents
 to your **self-hosted cell** over HTTP (a shared, team-wide decision graph), or run the
 **local stdio server** yourself for single-user use.
 
@@ -15,7 +15,7 @@ Your [self-hosted cell](../../getting-started/quickstart/#run-a-cell-with-docker
 connect to that endpoint and write to a shared, team-wide decision graph — no local
 binary required on the agent's machine. **Authentication is a bearer token:**
 [provision a tenant](../../getting-started/quickstart/#connect-your-agent-to-the-cell) and use the
-`hm_tk_...` token it returns. The examples below use `http://localhost:8080/mcp`;
+`lt_tk_...` token it returns. The examples below use `http://localhost:8080/mcp`;
 substitute your cell's address.
 
 ### Claude Code
@@ -25,10 +25,10 @@ Add to `.mcp.json` in your project root:
 ```json
 {
   "mcpServers": {
-    "hivemind": {
+    "loomtracer": {
       "type": "http",
       "url": "http://localhost:8080/mcp",
-      "headers": { "Authorization": "Bearer hm_tk_..." }
+      "headers": { "Authorization": "Bearer lt_tk_..." }
     }
   }
 }
@@ -37,11 +37,11 @@ Add to `.mcp.json` in your project root:
 Or from the CLI:
 
 ```bash
-claude mcp add --transport http hivemind http://localhost:8080/mcp \
-  --header "Authorization: Bearer hm_tk_..."
+claude mcp add --transport http loomtracer http://localhost:8080/mcp \
+  --header "Authorization: Bearer lt_tk_..."
 ```
 
-Reload Claude Code and all `hivemind` tools are available.
+Reload Claude Code and all `loomtracer` tools are available.
 
 ### Claude Desktop
 
@@ -51,10 +51,10 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
 ```json
 {
   "mcpServers": {
-    "hivemind": {
+    "loomtracer": {
       "type": "http",
       "url": "http://localhost:8080/mcp",
-      "headers": { "Authorization": "Bearer hm_tk_..." }
+      "headers": { "Authorization": "Bearer lt_tk_..." }
     }
   }
 }
@@ -67,9 +67,9 @@ Add to `~/.cursor/mcp.json` or the project-level `.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
-    "hivemind": {
+    "loomtracer": {
       "url": "http://localhost:8080/mcp",
-      "headers": { "Authorization": "Bearer hm_tk_..." }
+      "headers": { "Authorization": "Bearer lt_tk_..." }
     }
   }
 }
@@ -80,8 +80,8 @@ Add to `~/.cursor/mcp.json` or the project-level `.cursor/mcp.json`:
 Put the token in an environment variable and register the cell:
 
 ```bash
-export HIVEMIND_TOKEN=hm_tk_...
-codex mcp add hivemind --url http://localhost:8080/mcp --bearer-token-env-var HIVEMIND_TOKEN
+export LOOMTRACER_TOKEN=lt_tk_...
+codex mcp add loomtracer --url http://localhost:8080/mcp --bearer-token-env-var LOOMTRACER_TOKEN
 ```
 
 Codex writes the server to `~/.codex/config.toml` and reads the bearer token from that variable.
@@ -96,7 +96,7 @@ is a thin transport over the same commands layer the CLI uses.
 ### Start the server
 
 ```bash
-hivemind --hivemind-dir ./hivemind/ mcp
+loomtracer --loomtracer-dir ./loomtracer/ mcp
 ```
 
 The server reads from stdin and writes to stdout in the MCP protocol format.
@@ -106,11 +106,11 @@ The server reads from stdin and writes to stdout in the MCP protocol format.
 ```json
 {
   "mcpServers": {
-    "hivemind": {
-      "command": "hivemind",
+    "loomtracer": {
+      "command": "loomtracer",
       "args": ["mcp"],
       "env": {
-        "HIVEMIND_DIR": "/absolute/path/to/your/hivemind/dir"
+        "LOOMTRACER_DIR": "/absolute/path/to/your/loomtracer/dir"
       }
     }
   }
@@ -124,23 +124,23 @@ Add to `.mcp.json` in the project root:
 ```json
 {
   "mcpServers": {
-    "hivemind": {
-      "command": "hivemind",
-      "args": ["--hivemind-dir", "./hivemind/", "mcp", "--agent-tool", "claude"]
+    "loomtracer": {
+      "command": "loomtracer",
+      "args": ["--loomtracer-dir", "./loomtracer/", "mcp", "--agent-tool", "claude"]
     }
   }
 }
 ```
 
-Or set `HIVEMIND_DIR` and omit `--hivemind-dir`:
+Or set `LOOMTRACER_DIR` and omit `--loomtracer-dir`:
 
 ```json
 {
   "mcpServers": {
-    "hivemind": {
-      "command": "hivemind",
+    "loomtracer": {
+      "command": "loomtracer",
       "args": ["mcp", "--agent-tool", "claude"],
-      "env": { "HIVEMIND_DIR": "./hivemind/" }
+      "env": { "LOOMTRACER_DIR": "./loomtracer/" }
     }
   }
 }
@@ -153,10 +153,10 @@ Or set `HIVEMIND_DIR` and omit `--hivemind-dir`:
 ```json
 {
   "mcpServers": {
-    "hivemind": {
-      "command": "hivemind",
+    "loomtracer": {
+      "command": "loomtracer",
       "args": ["mcp", "--agent-tool", "cursor"],
-      "env": { "HIVEMIND_DIR": "/path/to/hivemind/" }
+      "env": { "LOOMTRACER_DIR": "/path/to/loomtracer/" }
     }
   }
 }
@@ -165,14 +165,14 @@ Or set `HIVEMIND_DIR` and omit `--hivemind-dir`:
 ### Codex (local)
 
 ```bash
-codex mcp add hivemind -- hivemind mcp --agent-tool codex
+codex mcp add loomtracer -- loomtracer mcp --agent-tool codex
 ```
 
 This writes the server to `~/.codex/config.toml`; `codex mcp list` shows it enabled.
 
 ```toml
-[mcp_servers.hivemind]
-command = "hivemind"
+[mcp_servers.loomtracer]
+command = "loomtracer"
 args = ["mcp", "--agent-tool", "codex"]
 ```
 
@@ -180,7 +180,7 @@ args = ["mcp", "--agent-tool", "codex"]
 
 ## Available tools
 
-The `hivemind` MCP server exposes 40 tools. See [MCP Tools reference](../../reference/mcp-tools/)
+The `loomtracer` MCP server exposes 40 tools. See [MCP Tools reference](../../reference/mcp-tools/)
 for full parameter documentation.
 
 | Tool | Type | Description |
@@ -191,6 +191,12 @@ for full parameter documentation.
 | `disagree_decision` | write | Contest a decision as an actor |
 | `supersede_decision` | write | Supersede a prior decision with a new one |
 | `move_decision` | write | Move a decision to another project, recorded with who, when, from, to and why |
+| `retitle_decision` | write | Rename a decision; the old title stays readable |
+| `link_supersession` | write | Record that one already-recorded decision replaces another, keeping its own decider |
+| `ground_decision` | write | Say what an existing decision rests on, after the fact |
+| `reaffirm_decision` | write | Say a decision still holds after something it rests on changed |
+| `request_decision` | write | Ask a question before any decision answers it |
+| `acknowledge_suggestion` | write | Record that a finding from `get_suggestions` was looked at |
 | `get_decision` | read | Retrieve a decision by ID with derived status |
 | `get_relevant_decisions` | read | Search by topic, status, actor, or time window |
 | `get_situational_decisions` | read | Decisions bearing on a situation — matches by topic or evidence overlap, no ID needed |
@@ -199,15 +205,22 @@ for full parameter documentation.
 | `search_decisions` | read | Full-text search across the ledger |
 | `recent_decisions` | read | List recently proposed decisions |
 | `dump_graph` | read | Export the full projected graph (DOT or JSON) |
-| `get_decision_outcome` | read | Whether a decision still holds — superseded, stale premises, contested, or thin |
-| `hivemind_compact_view` | layer-3 | Compact summary of a decision and its context |
+| `get_decision_outcome` | read | Whether a decision still holds — superseded, stale premises, or contested |
+| `get_reexamine_items` | read | Decisions resting on something that changed that nobody has looked at again |
+| `get_waiting_requests` | read | Questions asked that no decision answers yet, oldest first |
+| `get_contested_decisions` | read | Decisions in contest: who accepted and who rejected, or conflicting answers |
+| `get_changed_decisions` | read | Decisions revised or superseded in a window, with what changed and who changed it |
+| `get_open_why_decisions` | read | Binding decisions whose why is still to answer |
+| `loomtracer_compact_view` | layer-3 | Compact summary of a decision and its context |
 | `recall_decisions` | layer-3 | Search + ranked digest — answers "what was decided about X?" |
 | `summarize_decisions` | layer-3 | Concise text summary of one or more decisions |
 | `decision_quality_candidates` | layer-3 | Bulk quality-signal pull for external scorers |
 | `get_decision_context` | layer-3 | Context record for a decision — authorship, review depth, evidence richness |
 | `decision_context_candidates` | layer-3 | Bulk context-feature pull, the independent-variable side of quality scoring |
-| `score_decision` | layer-3 | Explainable quality score in [0,1] with contributing reasons |
-| `scan_decision_quality` | layer-3 | Bulk quality scan across all decisions using the same scoring engine |
+| `score_decision` | layer-3 | The quality profile of one decision: seven dimensions, no score, no tier |
+| `scan_decision_quality` | layer-3 | Attention findings: decisions that need a look, such as a bet past its check date |
+| `get_suggestions` | layer-3 | The attention findings nobody has acknowledged yet |
+| `rank_decisions_by_importance` | layer-3 | Which decisions carry the most impact, each with who decided it |
 | `scan_misfiled_decisions` | layer-3 | Flag decisions carrying a caller-named "foreign" topic key — report only, never moves anything |
 | `analyze_failure_modes` | layer-3 | Aggregate failure-rate patterns across authorship, review, and context |
 | `classify_queue_list` | read | List pending ingest batches with turn text, plus today's classification budget (HTTP transport only) |
@@ -223,9 +236,9 @@ personal project. `<tool>` comes from `--agent-tool` on the server's command lin
 client there:
 
 ```
-hivemind mcp --agent-tool claude    # Claude Code
-hivemind mcp --agent-tool codex     # Codex
-hivemind mcp --agent-tool cursor    # Cursor
+loomtracer mcp --agent-tool claude    # Claude Code
+loomtracer mcp --agent-tool codex     # Codex
+loomtracer mcp --agent-tool cursor    # Cursor
 ```
 
 Without the flag the server usually cannot tell which client started it, and files captures under

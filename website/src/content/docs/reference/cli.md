@@ -1,50 +1,50 @@
 ---
 title: CLI Reference
-description: Complete reference for hivemind, Loomtracer's command-line tool.
+description: Complete reference for loomtracer, Loomtracer's command-line tool.
 ---
 
-`hivemind` is Loomtracer's command-line tool. This page lists its flags and commands.
+`loomtracer` is Loomtracer's command-line tool. This page lists its flags and commands.
 
 ## Global flags
 
 | Flag | Description |
 |------|-------------|
 | `--actor <id>` | Actor making this request. Format: `human:<id>` or `agent:<tool>:<name>` |
-| `--hivemind-dir <path>` | Ledger directory (default: `./hivemind/`). Created on first write. |
+| `--loomtracer-dir <path>` | Ledger directory (default: `./loomtracer/`). Created on first write. |
 | `--tenant <id>` | Tenant to read/write (default: `local`). Must already be a known tenant — see [Tenants](#tenants) below. |
-| `--database-url <url>` | Shared Postgres backend connection URL. Unset or empty selects the local SQLite ledger under `--hivemind-dir` instead. A flag value beats `HIVEMIND_DATABASE_URL`. Requires the `shared-backend-postgres` feature. |
+| `--database-url <url>` | Shared Postgres backend connection URL. Unset or empty selects the local SQLite ledger under `--loomtracer-dir` instead. A flag value beats `LOOMTRACER_DATABASE_URL`. Requires the `shared-backend-postgres` feature. |
 | `--json` | Emit structured JSON output |
 | `--graph-backend <memory\|kuzu>` | Graph projection backend (default: `memory`) |
 
 ## Tenants
 
 Every ledger open — CLI, HTTP API, and stdio MCP alike — validates `--tenant`
-(or `X-HiveMind-Tenant` on the HTTP API) against a per-backend tenant
+(or `X-Loomtracer-Tenant` on the HTTP API) against a per-backend tenant
 registry before any read or write. An unknown tenant is a hard error, not a
 fresh empty scope: a typo'd `--tenant` must never look indistinguishable from
 "this tenant just has no decisions yet."
 
-**Default:** `--tenant local` (env `HIVEMIND_TENANT`). The `local` tenant is
+**Default:** `--tenant local` (env `LOOMTRACER_TENANT`). The `local` tenant is
 seeded automatically for every SQLite ledger directory, so single-user/local
 workflows need no tenant setup.
 
-**SQLite — `hivemind tenant create`:** tenants are a per-`--hivemind-dir`
+**SQLite — `loomtracer tenant create`:** tenants are a per-`--loomtracer-dir`
 registry. Register a new one with:
 
 ```
-hivemind tenant create <tenant-id>
+loomtracer tenant create <tenant-id>
 ```
 
 Creates the tenant in the ledger directory named by
-`--hivemind-dir`/`HIVEMIND_DIR` (errors if it already exists there). Add
-`--json` for a structured `{tenant_id, hivemind_dir}` result. This subcommand
+`--loomtracer-dir`/`LOOMTRACER_DIR` (errors if it already exists there). Add
+`--json` for a structured `{tenant_id, loomtracer_dir}` result. This subcommand
 is SQLite-only — pointed at a Postgres backend (`--database-url` set) it
 fails immediately, since Postgres tenants are provisioned server-side, not
 by any CLI invocation.
 
 **Postgres — server provisioning route:** tenants live in the shared
 `hm_tenants` table and are created only through the server's admin-gated
-`POST /v1/tenants` route (requires `HIVEMIND_ADMIN_KEY`). There is no CLI
+`POST /v1/tenants` route (requires `LOOMTRACER_ADMIN_KEY`). There is no CLI
 equivalent by design — this is the same route the HTTP API's per-user and
 WorkOS-OIDC auth paths depend on to have a tenant to resolve a caller into.
 
@@ -54,7 +54,7 @@ backend-specific create path instead of silently opening a fresh, empty
 scope:
 
 ```
-unknown tenant 'acme-inc': run `hivemind tenant create acme-inc` to register it
+unknown tenant 'acme-inc': run `loomtracer tenant create acme-inc` to register it
 ```
 
 ```
@@ -65,7 +65,7 @@ On the HTTP API this surfaces as `404 Not Found` for every read and write
 endpoint alike (a wrong address, not a validation or server error). In
 Postgres multi-tenant mode, clients never send a tenant header at all — the
 bearer token (or, with WorkOS configured, the JWT's `org_id` claim) resolves
-to the tenant server-side; `X-HiveMind-Tenant` only applies to SQLite
+to the tenant server-side; `X-Loomtracer-Tenant` only applies to SQLite
 dev-mode auth, where it defaults to `local` when absent.
 
 ## Projects
@@ -89,7 +89,7 @@ exceptional condition.
 ### `project register`
 
 ```
-hivemind --actor human:<id> project register <handle>
+loomtracer --actor human:<id> project register <handle>
   [--display-name <name>]
   [--purpose <text>]
 ```
@@ -101,8 +101,8 @@ prefix.
 ### `project link` / `project unlink`
 
 ```
-hivemind --actor human:<id> project link --from <handle> --to <handle> --kind <part_of|depends_on>
-hivemind --actor human:<id> project unlink --from <handle> --to <handle> --kind <part_of|depends_on>
+loomtracer --actor human:<id> project link --from <handle> --to <handle> --kind <part_of|depends_on>
+loomtracer --actor human:<id> project unlink --from <handle> --to <handle> --kind <part_of|depends_on>
 ```
 
 Links (or removes a link between) two registered projects. Both endpoints
@@ -113,7 +113,7 @@ currently active.
 ### `project anchor`
 
 ```
-hivemind --actor human:<id> project anchor --handle <handle> --kind <folder|rig|jira|linear|github|channel> --value <value>
+loomtracer --actor human:<id> project anchor --handle <handle> --kind <folder|rig|jira|linear|github|channel> --value <value>
 ```
 
 Anchors a registered project to a place in the world. A `rig` anchor value
@@ -122,7 +122,7 @@ is unique per tenant.
 ### `project list`
 
 ```
-hivemind project list [--limit <n>] [--cursor <cursor>]
+loomtracer project list [--limit <n>] [--cursor <cursor>]
 ```
 
 Lists registered (shared) projects, paged (`truncated: true` with a
@@ -132,7 +132,7 @@ resolve one directly with `project show`.
 ### `project decisions`
 
 ```
-hivemind project decisions <handle> [--limit <n>] [--cursor <cursor>]
+loomtracer project decisions <handle> [--limit <n>] [--cursor <cursor>]
 ```
 
 Lists the decisions in one project, oldest first, paged (default `--limit 25`;
@@ -146,8 +146,8 @@ an empty list.
 ### `project show`
 
 ```
-hivemind project show <handle>
-hivemind project show --current
+loomtracer project show <handle>
+loomtracer project show --current
 ```
 
 Shows one project by handle, or a personal address
@@ -157,13 +157,13 @@ actor's current-project setting (see `project use`) instead.
 ### `project use`
 
 ```
-hivemind --actor human:<id> project use <handle>
-hivemind --actor human:<id> project use --clear
+loomtracer --actor human:<id> project use <handle>
+loomtracer --actor human:<id> project use --clear
 ```
 
 Sets or clears the actor's **current project**: a one-time, per-machine
 setting for captures with no repo or folder context (e.g. chat), consulted
-below any folder marker or rig anchor. Local to `--hivemind-dir` and the
+below any folder marker or rig anchor. Local to `--loomtracer-dir` and the
 actor — it is never a ledger fact, so setting or clearing it appends no
 event. Setting an unregistered handle is refused with a hint to register it
 first.
@@ -175,7 +175,7 @@ All `emit` commands append an event to the ledger. They require `--actor`.
 ### `emit decision.proposed`
 
 ```
-hivemind emit decision.proposed
+loomtracer emit decision.proposed
   --title <text>
   --rationale <text>
   [--topic-keys <key,key,...>]
@@ -191,7 +191,7 @@ hivemind emit decision.proposed
 ```
 
 Prints the new decision ID on success, and only the ID on stdout, so
-`id=$(hivemind emit ...)` keeps working. In text mode a second line on stderr
+`id=$(loomtracer emit ...)` keeps working. In text mode a second line on stderr
 names the project the decision landed in: `project: <address> (<source>)`, plus
 "saved to your personal project" when no `--project` was given. Add `--json`
 for a structured envelope; it carries `project` and `project_source` (and
@@ -230,21 +230,22 @@ once the source conversation is gone.
 
 `--project <handle>` files the decision under a registered project. An unknown
 handle is refused with the [`project register`](#project-register) command to
-run, and nothing is written. `hivemind` checks the handle; it never works out
+run, and nothing is written. `loomtracer` checks the handle; it never works out
 the project for you, so pass the one you know. Without `--project` the decision
 is saved to the recorder's personal project (`personal:<actor>`, derived from
 the actor, never registered) and the reply says so. `--project-source` records
 how the handle was determined (default `stated`) and requires `--project`;
-`personal_fallback` and `moved` are recorded by `hivemind` itself and cannot be
+`personal_fallback` and `moved` are recorded by `loomtracer` itself and cannot be
 claimed.
 
 ### `emit decision.capture`
 
-Noninteractive shorthand for agent use. Defaults actor to a stable
-`agent:<tool>:<name>`, records `source=agent`.
+Noninteractive shorthand, the everyday write. Without a typed `--actor` it records the
+agent in an agent session (`agent:<tool>:<name>`, `source=agent`) and the git user at a
+plain terminal (`human:<git email>`, `source=human`).
 
 ```
-hivemind emit decision.capture
+loomtracer emit decision.capture
   --title <text>
   --rationale <text>
   [--topic-keys <key,...>]
@@ -262,6 +263,9 @@ hivemind emit decision.capture
   [--rests-on-assumption <statement>]...
   [--bet [<statement>]] [--would-change-if <text>] [--check-by <date>]
   [--confidence <low|medium|high>]
+  (--binds <what> | --binds-nothing)
+  (--undo-cost <what> | --cheap-to-undo)
+  [--answers <request-id>]
 ```
 
 Takes the same `--project` / `--project-source` flags and replies the same way
@@ -293,22 +297,31 @@ grounding: they go in `--quote` with `--question`. If a decision named under
 `--rests-on-decision` is already superseded or rejected, the capture succeeds,
 the link is recorded, and text mode adds a `premise_stale:` line for it.
 
+**A capture must also say what it binds and what undoing it would cost.** Give
+`--binds <what>` (other people, other code, a later choice, in one sentence) or
+`--binds-nothing`, and `--undo-cost <what>` or `--cheap-to-undo`. A capture that
+leaves either out is refused and nothing is written. One that binds nothing and is
+cheap to undo is still recorded, and the reply says it is below the decision floor.
+
+`--answers <request-id>` links the decision to an open [`ask`](#ask) request, as
+`--question <text>` would, without repeating the words.
+
 ### `emit decision.accepted`
 
 ```
-hivemind emit decision.accepted --decision-id <decision-id>
+loomtracer emit decision.accepted --decision-id <decision-id>
 ```
 
 ### `emit decision.rejected`
 
 ```
-hivemind emit decision.rejected --decision-id <decision-id>
+loomtracer emit decision.rejected --decision-id <decision-id>
 ```
 
 ### `emit decision.superseded`
 
 ```
-hivemind emit decision.superseded --old <decision-id> --new <new-decision-id>
+loomtracer emit decision.superseded --old <decision-id> --new <new-decision-id>
 ```
 
 Marks one existing decision as superseding another existing decision. Both
@@ -319,14 +332,22 @@ instead.
 ### `emit evidence.recorded`
 
 ```
-hivemind emit evidence.recorded --content <text> [--url <url>] [--for <decision-id>]
+loomtracer emit evidence.recorded --content <text> [--source-ref <ref>]
 ```
+
+Records something observed as its own evidence node. To make a decision rest on
+something observed in the same call, use `--rests-on-evidence` on the capture.
 
 ### `emit hypothesis.recorded`
 
 ```
-hivemind emit hypothesis.recorded --statement <text> [--for <decision-id>]
+loomtracer emit hypothesis.recorded --statement <text>
+  [--kind <assumption|bet>]        # default: assumption
+  [--check-by <date>] [--would-change-if <text>]
 ```
+
+Records an assumption, or a declared bet, as its own node; decisions can rest on
+it (`--hypotheses <id>`) and it can later be refuted.
 
 ### `emit ingest.batch_classified`
 
@@ -335,7 +356,7 @@ directly — no `ANTHROPIC_API_KEY` needed. The server classifier skips this bat
 because no companion `IngestBatchReceived` event exists for the batch ID.
 
 ```
-hivemind emit ingest.batch_classified
+loomtracer emit ingest.batch_classified
   --captures <path>              # JSON file: array of CaptureItem objects
   [--classifier-model <name>]    # default: claude-haiku-4-5-20251001
   [--schema-version <n>]         # must be "2"; default: 2
@@ -343,21 +364,21 @@ hivemind emit ingest.batch_classified
 
 ### `emit decision.scored`
 
-Keyless scoring path: submit a pre-scored quality/importance assessment from a
-plugin or edge session directly — no `ANTHROPIC_API_KEY` needed. The target
-capture node is resolved from a prior `ingest.batch_classified` batch via
-`--batch-id` + `--capture-index`, so callers never construct the
-`capture:{event_id}:{idx}` node-id format themselves. Fails if the referenced
-capture is not a `"decision"`. Scores are validated and clamped with the same
-invariants as the server's own Haiku-backed scorer (`src/scorer.rs`).
+Keyless assessment path: submit a model's assessment of one decision (schema
+version 2) from a plugin or edge session directly — no `ANTHROPIC_API_KEY` needed.
+Name the decision with `--decision-id` (one proposed directly), or with
+`--batch-id` + `--capture-index` (one a classifier extracted in a prior
+`ingest.batch_classified` batch). The JSON holds the seven dimensions under
+`"dimensions"`, each `assessed` (a level, an explanation and a quote) or
+`not_assessed` (and why), and goes through the same validator as the server's
+own scorer.
 
 ```
-hivemind emit decision.scored
-  --batch-id <id>                 # batch_id from a prior emit ingest.batch_classified
-  --capture-index <n>              # 0-based index of the decision capture in that batch
-  --scores <path>                  # JSON file: {"quality_dims": {...}, "importance": {...}}
-  [--scorer-model <name>]          # default: claude-haiku-4-5-20251001
-  [--weight-version <tag>]         # default: v1
+loomtracer emit decision.scored
+  (--decision-id <id> | --batch-id <id> --capture-index <n>)
+  --scores <path>                  # JSON file: {"dimensions": {...}}
+  --prompt-version <version>       # the prompt the model was given
+  [--model <name>]                 # the model that produced the assessment
 ```
 
 ## Query commands
@@ -367,7 +388,7 @@ All `query` commands return JSON. They never write to the ledger.
 ### `query get_decision`
 
 ```
-hivemind query get_decision --id <decision-id>
+loomtracer query get_decision --id <decision-id>
 ```
 
 Returns the full decision node with current derived status, supersession chain tip,
@@ -376,22 +397,24 @@ and `hypothesis_refuted` flag if any assumed hypothesis has been refuted.
 ### `query search_decisions`
 
 ```
-hivemind query search_decisions
+loomtracer query search_decisions
+  [--q <words>]            # every word must appear in the decision's text
   [--topic <key>]
-  [--status <proposed|accepted|contested|superseded>]
-  [--actor <pattern>]
+  [--status <proposed|accepted|rejected|contested|superseded>]
+  [--actor-id <actor-id,...>]
   [--since <duration>]     # e.g., 7d, 30d, 1h
-  [--limit <n>]            # default 20
-  [--offset <n>]
+  [--until <time>]
+  [--limit <n>]            # default 25
+  [--cursor <token>]       # next_cursor of the previous page
 ```
 
-Returns `{ decisions: [...], truncated: bool, total: n }`.
+Alias: `search`.
 
 To list all `contested` decisions (note: `disagree` is a top-level write command,
 not a query subcommand):
 
 ```
-hivemind query search_decisions --status contested
+loomtracer query search_decisions --status contested
 ```
 
 ### `query recall`
@@ -399,7 +422,7 @@ hivemind query search_decisions --status contested
 Layer-3 search + summarise in one call. Answers "what was decided about X?".
 
 ```
-hivemind query recall [<free-text query>]
+loomtracer query recall [<free-text query>]
   [--topic <key,...>]
   [--status <status,...>]
   [--since <duration>]
@@ -408,20 +431,27 @@ hivemind query recall [<free-text query>]
 
 ### `query recent`
 
+Alias of `recent_decisions`: the decisions decided in a time window.
+
 ```
-hivemind query recent
-  [--limit <n>]
+loomtracer query recent
+  --since <duration|date|timestamp>   # e.g., 7d, 2026-10-01
+  [--until <time>]
   [--actor <pattern>]
-  [--since <duration>]
-  [--unreviewed-only]
+  [--topic <key,...>]
+  [--status <status,...>]
+  [--limit <n>]
+  [--cursor <token>]
 ```
+
+To skip what you already reviewed, use [`review --unreviewed-only`](#review).
 
 ### `query get_supersession_chain`
 
 Alias: `chain`.
 
 ```
-hivemind query get_supersession_chain (<free-text description> | --id <decision-id>)
+loomtracer query get_supersession_chain (<free-text description> | --id <decision-id>)
   [--pick <n>]             # disambiguate when a description matches more than one decision
   [--topic <key>]          # narrow description resolution to this topic
 ```
@@ -438,7 +468,7 @@ that candidate list, or `--id`. `--id` bypasses resolution entirely and is uncha
 Layer-3 signal/noise filter over a decision's subgraph.
 
 ```
-hivemind query compact-view (<free-text description> | --id <decision-id>)
+loomtracer query compact-view (<free-text description> | --id <decision-id>)
   [--pick <n>]
   [--topic <key>]
 ```
@@ -450,7 +480,7 @@ Same fluent resolution as `get_supersession_chain` above.
 Alias: `why`.
 
 ```
-hivemind query get_decision_neighborhood (<free-text description> | --id <decision-id>)
+loomtracer query get_decision_neighborhood (<free-text description> | --id <decision-id>)
   [--pick <n>]
   [--topic <key>]
   [--depth <n>]            # default 1
@@ -463,13 +493,13 @@ Same fluent resolution as `get_supersession_chain` above.
 ### `query get_decision_outcome`
 
 Alias: `verify`. "Did this decision hold up?" — leads with the decision, rationale, rejected
-options, who decided, and whether it still holds (superseded / stale premises / contested /
-thin structure), composing `get_decision` + `get_decision_context` + `get_decision_outcome`
+options, who decided, and whether it still holds (superseded / stale premises / contested),
+plus the quality profile, composing `get_decision` + `get_decision_context` + `get_decision_outcome`
 into one `DecisionBrief` answer. Distinct from the bulk `review` command below, which reports
 across many decisions rather than answering this about one.
 
 ```
-hivemind query get_decision_outcome (<free-text description> | --id <decision-id>)
+loomtracer query get_decision_outcome (<free-text description> | --id <decision-id>)
   [--pick <n>]
   [--topic <key>]
 ```
@@ -481,7 +511,7 @@ understand the answer.
 ### `query get_relevant_decisions`
 
 ```
-hivemind query get_relevant_decisions --topic <key> [--status <status>]
+loomtracer query get_relevant_decisions --topic <key> [--status <status>]
 ```
 
 ### `query situational`
@@ -492,7 +522,7 @@ membership and by deterministic term overlap against evidence content; each
 result surfaces `get_decision_outcome`'s `held_up`/`reasons` verbatim.
 
 ```
-hivemind query situational
+loomtracer query situational
   [--paths <file,dir,...>]     # defaults to the current git diff + staged set
   [--diff]                     # read a unified diff from stdin instead
   [--branch]                   # include the current branch name's tokens
@@ -519,7 +549,7 @@ whole tenant is searched.
 ### `query get_active_decision_blockers`
 
 ```
-hivemind query get_active_decision_blockers
+loomtracer query get_active_decision_blockers
   [--decision-id <id,...>]
   [--topic <key,...>]
   [--owner <actor-id,...>]
@@ -531,7 +561,7 @@ hivemind query get_active_decision_blockers
 ### `query get_recent_activity`
 
 ```
-hivemind query get_recent_activity
+loomtracer query get_recent_activity
   [--actor-id <id,...>]
   [--topic <key,...>]
   [--status <status,...>]
@@ -541,7 +571,7 @@ hivemind query get_recent_activity
 ### `query get_decisions_changed_since`
 
 ```
-hivemind query get_decisions_changed_since
+loomtracer query get_decisions_changed_since
   [--since-offset <ledger-offset>]
   [--since-ts <timestamp>]
   [--until-offset <ledger-offset>]
@@ -552,7 +582,7 @@ hivemind query get_decisions_changed_since
 ### `query get_decisions_added_since`
 
 ```
-hivemind query get_decisions_added_since
+loomtracer query get_decisions_added_since
   [--since <duration>]
   [--since-offset <ledger-offset>]
   [--since-ts <timestamp>]
@@ -562,45 +592,121 @@ hivemind query get_decisions_added_since
 ### `query export_read_only_summary`
 
 ```
-hivemind query export_read_only_summary
+loomtracer query export_read_only_summary
 ```
 
 ### `query score_decision`
 
-In-house explainable quality score for a single decision.
+The quality profile of one decision. No score, no tier.
 
 ```
-hivemind query score_decision --id <decision-id>
+loomtracer query score_decision --id <decision-id>
 ```
 
-Returns a score, quality tier, list of reasons, and contributing node IDs.
-No LLM involved; pure graph-signal heuristics.
+Returns seven dimensions (framing, alternatives, information, reasoning,
+values_tradeoffs, bias_exposure, calibration), each `assessed` (a level of
+`none`, `partial` or `solid`, with the reasons and the node ids behind it) or
+`not_assessed` (and why), plus attention lines and provenance. Works
+self-hosted, with no model.
 
 ### `query scan_decision_quality`
 
-Bulk in-house quality scan: scores all decisions (or a filtered subset) using
-the same explainable graph-signal engine as `score_decision`. Designed for
-scheduled quality-scan loops. Precision-biased: use `--min-tier` to surface
-only significant or high-concern decisions.
+One page of attention findings: decisions that need a look, each with a stable
+`finding_id`, the reason, the node ids and the dimensions it bears on.
 
 ```
-hivemind query scan_decision_quality
-  [--since-event-origin <offset>]   # filter to decisions proposed at or after this ledger offset
+loomtracer query scan_decision_quality
+  [--kind <kind,...>]               # default: all kinds
+  [--evidence-window-days <n>]      # evidence older than this counts as not re-checked; default 90
   [--limit <n>]                     # 1–1000, default 25
   [--cursor <token>]                # pagination cursor from a previous response
-  [--min-tier <tier>]               # clean|minor_concerns|significant_concerns|high_concern
 ```
+
+The kinds are `bet_past_check_date`, `premise_superseded`, `premise_rejected`,
+`assumption_refuted`, `bet_failed`, `evidence_not_rechecked` and
+`propagation_unfinished`. [`get_suggestions`](#query-get_suggestions) is the same
+list without the findings someone has acknowledged.
+
+### `query get_suggestions`
+
+```
+loomtracer query get_suggestions
+  [--kind <kind,...>]
+  [--evidence-window-days <n>]
+  [--exclude-acknowledged <true|false>]   # default true
+  [--limit <n>]
+  [--cursor <token>]
+```
+
+The attention findings of `scan_decision_quality`, less the ones someone has
+acknowledged: what is new since you last looked.
+
+### `query rank_decisions_by_importance`
+
+```
+loomtracer query rank_decisions_by_importance
+  [--include-not-in-force]          # also superseded and rejected decisions
+  [--limit <n>]                     # 1–50, default 10
+  [--cursor <token>]
+```
+
+Which decisions carry the most impact, most first, each with who decided it (a
+person or an agent). A decision is ranked when other decisions follow from it;
+the rest follow unranked and read `not_assessed`. No quality score, no composite.
+
+### `query get_waiting_requests`
+
+```
+loomtracer query get_waiting_requests [--limit <n>] [--cursor <token>]
+```
+
+Questions asked with [`ask`](#ask) that no decision answers yet, oldest first:
+what was asked, when, by whom, and the request id `emit decision.capture
+--answers` takes.
+
+### `query get_contested_decisions`
+
+```
+loomtracer query get_contested_decisions [--limit <n>] [--cursor <token>]
+```
+
+Decisions in contest, oldest first: one that an actor accepted and another
+rejected (who is on each side), or accepted answers to one question that choose
+different options.
+
+### `query get_changed_decisions`
+
+```
+loomtracer query get_changed_decisions
+  [--since <duration|date|timestamp>]   # default 7d
+  [--until <time>]
+  [--limit <n>]
+  [--cursor <token>]
+```
+
+Decisions that were revised or superseded, or whose premise stopped standing, in
+a window, most recently changed first: what changed, when, by whom and by what.
+
+### `query get_open_why_decisions`
+
+```
+loomtracer query get_open_why_decisions [--limit <n>] [--cursor <token>]
+```
+
+Binding decisions whose why is still to answer, oldest first: decisions in force
+that clear the decision floor and rest only on what their own capture brought,
+each with what it rests on.
 
 ### `query scan_misfiled_decisions`
 
 Flags decisions carrying a caller-named "foreign" topic key — a decision
 tagged with another ledger's name most likely belongs there instead.
-Deterministic exact-match only, no LLM: `hivemind` does not yet know which
+Deterministic exact-match only, no LLM: `loomtracer` does not yet know which
 project a ledger belongs to, so the caller supplies the foreign keys.
 Read-only report — never moves a decision.
 
 ```
-hivemind query scan_misfiled_decisions
+loomtracer query scan_misfiled_decisions
   --foreign-topic <key>[,<key>...]  # required; repeatable or comma-separated
   [--limit <n>]                     # 1–1000, default 25
   [--cursor <token>]                # pagination cursor from a previous response
@@ -611,7 +717,7 @@ hivemind query scan_misfiled_decisions
 ### `tenant create`
 
 ```
-hivemind tenant create <tenant-id>
+loomtracer tenant create <tenant-id>
 ```
 
 Registers a tenant in the local SQLite ledger's tenant registry so it passes
@@ -622,16 +728,16 @@ provisioning route this command does not apply to.
 ### `project register` / `link` / `unlink` / `anchor` / `list` / `decisions` / `show` / `use`
 
 ```
-hivemind project register <handle> [--display-name <name>] [--purpose <text>]
-hivemind project link --from <handle> --to <handle> --kind <part_of|depends_on>
-hivemind project unlink --from <handle> --to <handle> --kind <part_of|depends_on>
-hivemind project anchor --handle <handle> --kind <folder|rig|jira|linear|github|channel> --value <value>
-hivemind project list [--limit <n>] [--cursor <cursor>]
-hivemind project decisions <handle> [--limit <n>] [--cursor <cursor>]
-hivemind project show <handle>
-hivemind project show --current
-hivemind project use <handle>
-hivemind project use --clear
+loomtracer project register <handle> [--display-name <name>] [--purpose <text>]
+loomtracer project link --from <handle> --to <handle> --kind <part_of|depends_on>
+loomtracer project unlink --from <handle> --to <handle> --kind <part_of|depends_on>
+loomtracer project anchor --handle <handle> --kind <folder|rig|jira|linear|github|channel> --value <value>
+loomtracer project list [--limit <n>] [--cursor <cursor>]
+loomtracer project decisions <handle> [--limit <n>] [--cursor <cursor>]
+loomtracer project show <handle>
+loomtracer project show --current
+loomtracer project use <handle>
+loomtracer project use --clear
 ```
 
 Manage the project registry. See [Projects](#projects) above for the full
@@ -642,7 +748,7 @@ current-project setting.
 ### `quickstart`
 
 ```
-hivemind --actor human:<id> quickstart
+loomtracer --actor human:<id> quickstart
 ```
 
 Creates an isolated temporary ledger, records a sample decision, queries it back,
@@ -651,7 +757,7 @@ and prints the result. No files are left behind.
 ### `review`
 
 ```
-hivemind --actor human:<id> review
+loomtracer --actor human:<id> review
   [--actor <pattern>]      # filter by actor (e.g., 'agent:*')
   [--since <duration>]
   [--unreviewed-only]
@@ -662,7 +768,10 @@ Interactive terminal review flow. See [Human Review](../../guides/human-review/)
 ### `mcp`
 
 ```
-hivemind mcp [--session-id <id>]
+loomtracer mcp
+  [--agent-tool <claude|codex|cursor|...>]   # who unnamed MCP writes are recorded as
+  [--session-id <id>]
+  [--project-from-context]                   # file unnamed captures by the folder's .loomtracer-project
 ```
 
 Start the MCP stdio server. See [MCP Setup](../../guides/mcp-setup/).
@@ -670,7 +779,7 @@ Start the MCP stdio server. See [MCP Setup](../../guides/mcp-setup/).
 ### `dump`
 
 ```
-hivemind dump --format <dot|json>
+loomtracer dump --format <dot|json>
 ```
 
 Export the current projected graph as DOT (Graphviz) or JSON.
@@ -678,7 +787,7 @@ Export the current projected graph as DOT (Graphviz) or JSON.
 ### `export`
 
 ```
-hivemind export --format markdown --out <dir>
+loomtracer export --format markdown --out <dir>
   [--project <handle>]
   [--since <RFC3339>]
   [--topic <key,key,...>]
@@ -733,7 +842,7 @@ files_removed=...`) or, with `--json`, the same fields as a JSON object tagged
 ### `import documents`
 
 ```
-hivemind --actor <id> import documents [--file <path> | <directory>]
+loomtracer --actor <id> import documents [--file <path> | <directory>]
   [--on-conflict <keep_existing|supersede|contest|add_context>]
   [--extractor-command <command>]
   [--extractor-arg <arg>]
@@ -743,7 +852,7 @@ hivemind --actor <id> import documents [--file <path> | <directory>]
 
 Import decisions from markdown or text files. All imported decisions land in
 the ledger immediately as **unreviewed** (proposed, not auto-accepted) and flow
-into the review step (`hivemind review --unreviewed-only`).
+into the review step (`loomtracer review --unreviewed-only`).
 
 Auto-detection: if a file contains explicit `Decision:` blocks, the
 deterministic block parser runs. If it does not, the file is treated as prose
@@ -757,7 +866,7 @@ conflicts by default; resolve with `--on-conflict`.
 ### `tui`
 
 ```
-hivemind tui [--q <query>] [--topic <key>] [--status <status>] [--dot-output <path>]
+loomtracer tui [--q <query>] [--topic <key>] [--status <status>] [--dot-output <path>]
 ```
 
 Read-only terminal UI for decision search and graph navigation.
@@ -766,7 +875,7 @@ Requires build with `--features tui`.
 ### `supersede`
 
 ```
-hivemind --actor <id> supersede [<description>]
+loomtracer --actor <id> supersede [<description>]
   [--old <decision-id>]
   [--pick <n>]
   [--topic <topic-key>]
@@ -784,6 +893,8 @@ hivemind --actor <id> supersede [<description>]
   [--rests-on-assumption <statement>]...
   [--bet [<statement>]] [--would-change-if <text>] [--check-by <date>]
   [--confidence <low|medium|high>]
+  (--binds <what> | --binds-nothing)
+  (--undo-cost <what> | --cheap-to-undo)
 ```
 
 Captures a new decision and marks it as superseding an existing one in a
@@ -806,16 +917,16 @@ it was determined; `--project <handle>` (a registered project, with an optional
 [`emit decision.proposed`](#emit-decisionproposed). In text mode the same
 `project: ...` line goes to stderr.
 
-The replacement must say what it rests on, with the same grounding flags and
-the same refusal as [`emit decision.capture`](#emit-decisioncapture); nothing is
-written, and the old decision is not resolved, when none is given. A premise
+The replacement must say what it rests on, what it binds and what undoing it
+would cost, with the same flags and the same refusal as
+[`emit decision.capture`](#emit-decisioncapture); nothing is written, and the old decision is not resolved, when none is given. A premise
 that is already superseded or rejected adds ` premise_stale=<ids>` to the text
 output.
 
 ### `move`
 
 ```
-hivemind --actor <id> move [<description>]
+loomtracer --actor <id> move [<description>]
   [--decision <decision-id>]
   [--pick <n>]
   [--topic <topic-key>]
@@ -838,14 +949,236 @@ deleted or rewritten.
 Prints `event_id=... decision_id=... from=... to=...`; `--json` gives the same
 fields as an object.
 
+### `disagree`
+
+```
+loomtracer --actor <id> disagree [<description>]
+  [--decision <decision-id>]
+  [--pick <n>]
+  [--topic <topic-key>]
+  --reason <text>
+```
+
+Records that you disagree with a decision, and why. Your rejection is kept beside
+everyone else's position, never overwriting it: a decision one actor accepted and
+another rejected reads `contested`. To change a decision you accepted yourself,
+use [`supersede`](#supersede). See [Human Review](../../guides/human-review/).
+
+### `retitle`
+
+```
+loomtracer --actor <id> retitle [<description>]
+  [--decision <decision-id>]
+  [--pick <n>]
+  [--topic <topic-key>]
+  --to <new title>
+  [--reason <text>]
+```
+
+Renames a decision. The old title is kept on the node (`former_title`) and in the
+untouched `decision.proposed` event; nothing is lost. Recorded with who, when,
+from, to and why; reversed by retitling it back.
+
+### `ground`
+
+```
+loomtracer --actor <id> ground [<description>]
+  [--id <decision-id>]
+  [--pick <n>]
+  [--topic <topic-key>]
+  [--rests-on-decision <description|#N|decision-id>]...
+  [--rests-on-evidence <what was observed>]... [--evidence-source <where>]...
+  [--rests-on-assumption <statement>]...
+  [--bet [<statement>]] [--would-change-if <text>] [--check-by <date>]
+  [--evidence <id,...>] [--hypotheses <id,...>]
+  [--answers <question>]
+```
+
+Says what an existing decision rests on, after the fact, so an older decision
+stops reading "nothing declared" without pretending the grounding was there at
+capture. Append-only and recorded as whoever runs it. Nothing is written when the
+description is ambiguous, a premise cannot be pinned to one decision, or a
+premise would close a loop.
+
+### `reexamine`
+
+```
+loomtracer reexamine
+  [--decision <description> | --id <decision-id>] [--pick <n>]
+  [--project <handle>]
+  [--all]                  # closed items too
+  [--limit <n>] [--cursor <token>]
+```
+
+Lists the decisions that rest on something that changed and have not been looked
+at again: the open re-examine items, oldest decision first. Each names the
+decision, the premise that changed, how (superseded, rejected, contested or
+refuted) and when. `--all` adds the closed ones, with who reaffirmed them and why.
+
+### `reaffirm`
+
+```
+loomtracer --actor <id> reaffirm [<description>]
+  [--id <decision-id>]
+  [--pick <n>]
+  [--topic <topic-key>]
+  [--premise <id or words>]   # needed only when the decision has several open items
+  --because <text>
+```
+
+Says that a decision still holds after something it rests on changed: closes its
+open re-examine item with a one-line reason, recorded with who you are and when.
+
+### `ask`
+
+```
+loomtracer --actor <id> ask "<the question, in one line>"
+```
+
+Records that you are asking a question before any decision answers it. The request
+waits until a decision answers it (`emit decision.capture --answers <request-id>`);
+[`query get_waiting_requests`](#query-get_waiting_requests) lists the open ones.
+The same question can be asked more than once, each its own request.
+
+### `restatements`
+
+```
+loomtracer restatements propose [--project <address>]
+loomtracer --actor <id> restatements apply (--all | --link <later-id>=<earlier-id>...)
+  [--project <address>]
+```
+
+Finds decisions that were recorded more than once. `propose` lists the decisions
+whose titles look like one already recorded, with the words they share, and writes
+nothing. `apply` records the links you approve. A link is never a merge: both
+records stay, and `recall` and `why` show them as one decision.
+
+### `digest`
+
+```
+loomtracer digest
+  [--window <Nd|Nh|Nw>]    # default 7d
+  [--since <time>] [--until <time>]
+  [--actor <actor-id,...>]
+  [--limit <n>] [--cursor <token>]
+  [--summary]
+```
+
+"What did we decide this week, and why?" for a time window, from the graph. JSON
+by default; `--summary` for readable prose.
+
+### `map`
+
+```
+loomtracer map [--alpha <0.0..1.0>] [--summary]
+```
+
+Computes a 2-D map of the decisions (x = time, y = meaning) and prints it as a JSON
+point set. `--alpha` blends meaning (0.0) with supersession structure (1.0).
+
+### `serve`
+
+```
+loomtracer serve
+  [--bind <address>]                # default 127.0.0.1
+  [-p, --port <n>]                  # default 8080
+  [--allow-unauthenticated-remote]
+```
+
+Starts the HTTP API server, with `/mcp`. The bearer token is read from
+`LOOMTRACER_API_KEY`; without it the server runs in development mode with no
+authentication, which is refused on a non-loopback `--bind` unless
+`--allow-unauthenticated-remote` is passed. See the
+[Quickstart](../../getting-started/quickstart/#run-a-cell-with-docker) for a cell
+with Postgres.
+
+### `migrate`
+
+```
+loomtracer migrate --to-tenant <tenant>
+  (--to-url <cell url> --admin-key-file <path> | --to <postgres url>)
+  [--from <sqlite dir>]    # default: --loomtracer-dir
+  [--dry-run]
+```
+
+Moves a local SQLite ledger into a shared cell, event for event. Each event keeps
+its id, actor, source and time; an event the destination already holds is skipped,
+so a re-run writes nothing. `--to-url` sends the events over HTTP with the cell's
+admin key; `--to` writes straight to Postgres. `--dry-run` writes nothing and prints
+what would move.
+
+### `classify-queue`
+
+```
+loomtracer classify-queue list [--limit <n>] [--session-id <id>]
+loomtracer classify-queue submit --batch-id <id,...> --captures <path> [--model <name>]
+```
+
+Inspects and drains the classification queue on your own subscription: `list` shows
+the batches still to classify, `submit` writes the captures your agent produced for
+them. See [Agent Capture](../../guides/agent-capture/).
+
+### `ingest`
+
+```
+loomtracer ingest slack-thread --file <export.json> [--mention <@bot>]
+```
+
+Turns an exported Slack thread into a proposed decision: records the decision its
+messages spell out, nothing summarized or inferred. The thread must mention the bot
+(default `@loomtracer`); a thread already ingested returns the existing decision id.
+
+### `slack-app`
+
+```
+loomtracer slack-app manifest --request-url <url>
+loomtracer slack-app oauth-url --client-id <id> --redirect-uri <uri> --state <state>
+loomtracer slack-app install --team-id <id> --team-name <name> --bot-token <token> --signing-secret <secret>
+loomtracer slack-app enqueue-capture --team-id <id> --user-id <id> --channel-id <id> --message-ts <ts> \
+  --permalink <url> --surface <surface> --title <text> --rationale <text>
+loomtracer slack-app drain
+loomtracer slack-app command --team-id <id> --user-id <id> --text <text>
+```
+
+Runs the Slack integration's pieces by hand: print the app manifest, build the OAuth
+install URL, store a workspace install, queue and write thread captures (each into
+its workspace's own tenant), and answer `/loomtracer` slash commands.
+
+### `connector`
+
+```
+loomtracer connector auth gdocs
+```
+
+Signs in to a connector (today only Google Docs) for
+`import connector run --url <doc>`; it opens a browser for OAuth consent. Set
+`LOOMTRACER_GOOGLE_CLIENT_ID` and `LOOMTRACER_GOOGLE_CLIENT_SECRET` first.
+
+### `quality-scan`
+
+```
+loomtracer --actor <id> quality-scan
+  [--kind <kind,...>]
+  [--limit <n>]                       # 1–50 tickets per run
+  [--linear-team-id <id>]             # overrides LOOMTRACER_LINEAR_TEAM_ID
+  [--loomtracer-base-url <url>]       # overrides LOOMTRACER_PUBLIC_URL
+  [--dry-run]
+```
+
+Files a Linear ticket for each attention finding nobody has acknowledged (the
+findings of [`get_suggestions`](#query-get_suggestions)) and acknowledges each one
+it files, so running it again files only what is new. Set
+`LOOMTRACER_LINEAR_API_KEY` and `LOOMTRACER_LINEAR_TEAM_ID` first; `--dry-run`
+calls nothing and acknowledges nothing.
+
 ## Environment variables
 
 | Variable | Description |
 |----------|-------------|
-| `HIVEMIND_DIR` | Default ledger directory |
-| `HIVEMIND_TENANT` | Default tenant (default: `local`). Overridden by `--tenant`. Must be a known tenant — see [Tenants](#tenants). |
-| `HIVEMIND_DATABASE_URL` | Shared Postgres backend connection URL. Unset or empty selects the local SQLite ledger. Overridden by `--database-url`. Requires the `shared-backend-postgres` feature. |
-| `HIVEMIND_ACTOR` | Default actor if `--actor` is omitted |
-| `HIVEMIND_GRAPH_BACKEND` | Graph backend: `memory` (default) or `kuzu` |
-| `HIVEMIND_VERSION` | Pin version for the installer script |
-| `HIVEMIND_INSTALL_DIR` | Install destination for the installer script |
+| `LOOMTRACER_DIR` | Default ledger directory |
+| `LOOMTRACER_TENANT` | Default tenant (default: `local`). Overridden by `--tenant`. Must be a known tenant — see [Tenants](#tenants). |
+| `LOOMTRACER_DATABASE_URL` | Shared Postgres backend connection URL. Unset or empty selects the local SQLite ledger. Overridden by `--database-url`. Requires the `shared-backend-postgres` feature. |
+| `LOOMTRACER_ACTOR` | Default actor if `--actor` is omitted |
+| `LOOMTRACER_GRAPH_BACKEND` | Graph backend: `memory` (default) or `kuzu` |
+| `LOOMTRACER_VERSION` | Pin version for the installer script |
+| `LOOMTRACER_INSTALL_DIR` | Install destination for the installer script |
