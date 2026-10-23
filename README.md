@@ -7,8 +7,8 @@ https://loomtracer.vercel.app/demo.
 **Live:** https://loomtracer.ai, on Vercel
 
 The product is Loomtracer. Its code lives in [alexknips/loomtracer](https://github.com/alexknips/loomtracer),
-and its command-line tool is still called `hivemind`: the site keeps that name in every command,
-install step and tool name. This repo, alexknips/loomtracer-site, holds only the site.
+and since v0.8.0 (2026-10-23) its command-line tool is called `loomtracer` too (it was `hivemind`): every
+command, install step and tool name on the site uses it. This repo, alexknips/loomtracer-site, holds only the site.
 
 ## Layout
 
@@ -29,13 +29,13 @@ pitch-screens/            source captures plus the Loomtracer PDF and contact-sh
 brand/                    Jeff's brand kit: guide, tokens, logo SVGs; agents read it through CLAUDE.md
 CLAIMS.md                 every claim on the landing and use cases pages, with its evidence (release, changelog section, plan)
 .github/workflows/
-  reference-docs.yml          fail if the docs drift from the latest hivemind release
+  reference-docs.yml          fail if the docs drift from the latest loomtracer release
   regenerate-reference.yml    regenerate the generated docs from that release, commit
 .github/scripts/
   commit-generated-reference.sh   commits only what the generator owns
 ```
 
-The site stays under `website/` because hivemind's reference generator reads
+The site stays under `website/` because loomtracer's reference generator reads
 `website/src/...` paths relative to its working directory.
 
 ## Run it locally
@@ -47,9 +47,9 @@ npm run dev        # http://localhost:4321/
 npm run build      # static output in website/dist/
 ```
 
-## The reference follows the latest hivemind release
+## The reference follows the latest loomtracer release
 
-The site documents the latest hivemind **release**, not master: master's new flags and tools
+The site documents the latest loomtracer **release**, not master: master's new flags and tools
 would advertise what nobody can install yet.
 
 `reference-docs.yml` resolves the latest release tag
@@ -71,10 +71,10 @@ tools" table in `guides/mcp-setup.md`. When a release adds a tool, the check sta
 `main` until that table row (and any `cli.md` section) is written. That red is the alarm, not
 a fault in the job.
 
-To regenerate locally, with hivemind checked out next to this repo at the release tag:
+To regenerate locally, with loomtracer checked out next to this repo at the release tag:
 
 ```sh
-cargo run --manifest-path ../hivemind/Cargo.toml --bin generate-reference
+cargo run --manifest-path ../loomtracer/Cargo.toml --bin generate-reference
 ```
 
 ## The address

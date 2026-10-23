@@ -12,18 +12,18 @@ import { founders } from '../data/founders';
 const base = import.meta.env.BASE_URL;
 // The version check is part of step 1: on the landing path, `claude mcp add` succeeds without the
 // binary on PATH and Claude Code only fails later (ENOENT); the fix is in the Quickstart, linked here.
-const installCmd = 'curl -fsSL https://raw.githubusercontent.com/alexknips/hivemind/master/scripts/install.sh | sh\nhivemind --version';
+const installCmd = 'curl -fsSL https://raw.githubusercontent.com/alexknips/loomtracer/master/scripts/install.sh | sh\nloomtracer --version';
 // --agent-tool claude files captures under Claude Code; without it the server files them under codex.
-const connectCmd = 'claude mcp add hivemind -- hivemind mcp --agent-tool claude';
-// Everything on this page works in the current release (v0.7.0, 25 Sep 2026), so it carries no
+const connectCmd = 'claude mcp add loomtracer -- loomtracer mcp --agent-tool claude';
+// Everything on this page works in the current release (v0.8.0, 23 Oct 2026), so it carries no
 // status marks; what comes next and what is planned is told once, on the use cases page.
 // Every claim on this page is listed with its evidence in CLAIMS.md at the repo root.
 // The page tells the problem (the next session undoes it, nobody knows why, nobody can say if it
 // held up) once, in #problem, and goes straight on to what it is useful for (the founder's review of
 // 2026-09-30: too much duplication, too much text, get to the use cases sooner). Since 2026-10-02 it
 // keeps only what works today, about 1,000 words. The real Claude Code session lives in the deck.
-// The product is Loomtracer since 2026-10-07; its command-line tool is still `hivemind`, so every
-// command keeps that name and step 1 says so once. The founders' block (#contact) closes the page.
+// The product is Loomtracer since 2026-10-07, and its command-line tool is `loomtracer` since v0.8.0
+// (2026-10-23; it was `hivemind`), so every command uses that name and step 1 says so once. The founders' block (#contact) closes the page.
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -46,7 +46,7 @@ const connectCmd = 'claude mcp add hivemind -- hivemind mcp --agent-tool claude'
     <section class="max-w-4xl mx-auto px-4 sm:px-6 pt-14 sm:pt-20 pb-12 sm:pb-16 text-center">
       <p class="badge badge-outline mb-8">
         <span class="size-1.5 rounded-full bg-success" aria-hidden="true"></span>
-        v0.7.0 &middot; open source &middot; local-first
+        v0.8.0 &middot; open source &middot; local-first
       </p>
       <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mb-6">
         Loomtracer is memory<br class="hidden sm:inline" /> <span class="text-muted-foreground">for decisions.</span>
@@ -118,7 +118,7 @@ const connectCmd = 'claude mcp add hivemind -- hivemind mcp --agent-tool claude'
         <p class="text-xs font-mono uppercase tracking-wide text-muted-foreground text-center mb-3">Use cases</p>
         <h2 class="text-xl font-semibold tracking-tight text-foreground text-center mb-3">What it is useful for</h2>
         <p class="text-md text-muted-foreground text-center max-w-2xl mx-auto mb-12 sm:mb-16">
-          Everything on this page works in v0.7.0.
+          Everything on this page works in v0.8.0.
         </p>
 
         <Anatomy />
@@ -226,12 +226,12 @@ const connectCmd = 'claude mcp add hivemind -- hivemind mcp --agent-tool claude'
           <li class="py-6 sm:py-7 flex gap-4 min-w-0">
             <span class="w-5 shrink-0 pt-1 text-xs font-mono text-muted-foreground">1</span>
             <div class="min-w-0 flex-1">
-              <h3 class="text-md font-semibold text-foreground mb-3">Install Loomtracer&rsquo;s command-line tool, <code class="code">hivemind</code></h3>
+              <h3 class="text-md font-semibold text-foreground mb-3">Install the command-line tool, <code class="code">loomtracer</code></h3>
               <pre class="code-block mb-3"><code>{installCmd}</code></pre>
               <p class="text-base text-muted-foreground leading-relaxed">
                 Linux (x86_64, ARM64) and Apple Silicon Macs; the script checks the release&rsquo;s SHA-256. Other
-                systems, or <code class="code">hivemind: not found</code>: see the
-                <a href={`${base}getting-started/quickstart/#if-hivemind-is-not-found`} class="link">quickstart</a>.
+                systems, or <code class="code">loomtracer: not found</code>: see the
+                <a href={`${base}getting-started/quickstart/#if-loomtracer-is-not-found`} class="link">quickstart</a>.
               </p>
             </div>
           </li>
@@ -241,7 +241,7 @@ const connectCmd = 'claude mcp add hivemind -- hivemind mcp --agent-tool claude'
               <h3 class="text-md font-semibold text-foreground mb-3">Connect your agent</h3>
               <pre class="code-block mb-3"><code>{connectCmd}</code></pre>
               <p class="text-base text-muted-foreground leading-relaxed">
-                Run it in your project for Claude Code. Decisions go to <code class="code">./hivemind/</code>,
+                Run it in your project for Claude Code. Decisions go to <code class="code">./loomtracer/</code>,
                 a SQLite ledger you own. Codex, Cursor and Claude Desktop are in
                 <a href={`${base}guides/mcp-setup/`} class="link">MCP setup</a>.
               </p>

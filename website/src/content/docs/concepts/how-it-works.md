@@ -1,6 +1,6 @@
 ---
 title: How it works
-description: The record is never edited, status follows from later decisions, every decision says who decided and what it rests on, and your ledger stays in ./hivemind.
+description: The record is never edited, status follows from later decisions, every decision says who decided and what it rests on, and your ledger stays in ./loomtracer.
 ---
 
 ## The record is never edited
@@ -39,13 +39,13 @@ That is how it can tell you later whether the decision still holds: when evidenc
 the decisions resting on it read "assumption refuted", and when an earlier decision is replaced, the
 decisions resting on it read stale.
 
-## Your ledger stays in ./hivemind
+## Your ledger stays in ./loomtracer
 
-On your machine, the record is one SQLite file in your project, `./hivemind/ledger.sqlite`. There is no
+On your machine, the record is one SQLite file in your project, `./loomtracer/ledger.sqlite`. There is no
 account and nothing phones home. A [self-hosted cell](../../getting-started/quickstart/#run-a-cell-with-docker)
 keeps it in its own Postgres, separately for each tenant. To read it without Loomtracer, export it as
 Markdown files:
 
 ```bash
-hivemind export --format markdown --out ./decisions/
+loomtracer export --format markdown --out ./decisions/
 ```

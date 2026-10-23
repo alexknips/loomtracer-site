@@ -5,7 +5,7 @@
  * RelationshipGraphExplorer.css): one outline per kind of node, the kind's hue from the
  * tokens, the title in the page's text colour, grey edges whose words sit just behind the
  * arrowhead, and every arrow running from the newer node to the older one
- * (docs/GRAPH_CONTRACT.md in hivemind). Frames are placed by hand; this file turns a
+ * (docs/GRAPH_CONTRACT.md in loomtracer). Frames are placed by hand; this file turns a
  * frame's description into SVG geometry, so Frame.astro only has to print it.
  */
 

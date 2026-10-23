@@ -9,7 +9,7 @@ capture decisions directly into the local ledger or a self-hosted cell — no
 
 This page covers the write path. For consulting, verifying, and contesting
 decisions that already exist by description rather than by id, see the
-[`hivemind-context` plugin](https://github.com/alexknips/loomtracer/blob/master/docs/AGENT_DECISION_CONTEXT.md).
+[`loomtracer-context` plugin](https://github.com/alexknips/loomtracer/blob/master/docs/AGENT_DECISION_CONTEXT.md).
 
 ## Two capture paths
 
@@ -28,40 +28,40 @@ configured, the background classifier picks up `enqueue-capture` batches instead
 ### Claude Code — marketplace
 
 ```text
-/plugin marketplace add alexknips/hivemind
-/plugin install hivemind-capture@hivemind
+/plugin marketplace add alexknips/loomtracer
+/plugin install loomtracer-capture@loomtracer
 /reload-plugins
 ```
 
-This installs five commands, one skill and an MCP server. The server runs the `hivemind` binary,
+This installs five commands, one skill and an MCP server. The server runs the `loomtracer` binary,
 so [install it](../../getting-started/quickstart/) first.
 
 | Command / skill / tool | What it does |
 |-------------|-------------|
-| `/hivemind-capture:capture` | Capture one decision-memory item to the local ledger |
-| `/hivemind-capture:capture-decision` | Capture a single decision (the older, decision-only path) |
-| `/hivemind-capture:query-decisions` | "What did we decide about X?" — free-text recall of the ledger |
-| `/hivemind-capture:batch-capture` | Classify recent conversation and capture its decisions in one batch, keyless |
-| `/hivemind-capture:classify-queue` | Work through the classification queue on your own subscription |
-| `hivemind-capture` skill | Tells the agent when and how to capture |
-| `hivemind` MCP server | Full write + query access via MCP tools |
+| `/loomtracer-capture:capture` | Capture one decision-memory item to the local ledger |
+| `/loomtracer-capture:capture-decision` | Capture a single decision (the older, decision-only path) |
+| `/loomtracer-capture:query-decisions` | "What did we decide about X?" — free-text recall of the ledger |
+| `/loomtracer-capture:batch-capture` | Classify recent conversation and capture its decisions in one batch, keyless |
+| `/loomtracer-capture:classify-queue` | Work through the classification queue on your own subscription |
+| `loomtracer-capture` skill | Tells the agent when and how to capture |
+| `loomtracer` MCP server | Full write + query access via MCP tools |
 
 ### Codex
 
-From a local checkout of the `hivemind` repository: open `/plugins`, choose `HiveMind Plugins`, and
-install `HiveMind Capture` (the plugins still carry the tool's name).
+From a local checkout of the `loomtracer` repository: open `/plugins`, choose `Loomtracer Plugins`, and
+install `Loomtracer Capture`.
 
 From another checkout or machine, add the repository as a marketplace, then install the bundle:
 
 ```bash
-codex plugin marketplace add https://github.com/alexknips/hivemind.git
-codex plugin add hivemind-capture@hivemind-plugins
+codex plugin marketplace add https://github.com/alexknips/loomtracer.git
+codex plugin add loomtracer-capture@loomtracer-plugins
 ```
 
 Or copy the skill bundle directly:
 
 ```bash
-cp -r plugins/hivemind-capture/skills/hivemind-capture "$HOME/.agents/skills/"
+cp -r plugins/loomtracer-capture/skills/loomtracer-capture "$HOME/.agents/skills/"
 ```
 
 ## Direct capture — single decision
@@ -70,18 +70,21 @@ Use `emit decision.capture` for a single, deterministic decision you're making
 right now. This is the preferred path for in-the-moment choices.
 
 ```bash
-hivemind --hivemind-dir ./hivemind/ emit decision.capture \
+loomtracer --loomtracer-dir ./loomtracer/ emit decision.capture \
   --title "Use direct CLI capture for agent decisions" \
   --rationale "The local command is deterministic and does not depend on hooks" \
   --topic-keys agents,capture \
-  --options direct-cli,mcp \
-  --chose direct-cli \
-  --rests-on-assumption "Not every agent runtime offers hooks"
+  --options "Direct CLI,MCP" \
+  --chose "Direct CLI" \
+  --rests-on-assumption "Not every agent runtime offers hooks" \
+  --binds "How every agent session records its decisions" \
+  --undo-cost "Teaching each agent another capture path"
 ```
 
 A capture must say what the decision rests on: `--rests-on-decision`, `--rests-on-evidence`
 (with `--evidence-source`), `--rests-on-assumption`, or `--bet` when there is nothing yet. One
-that names nothing is refused and nothing is written.
+that names nothing is refused and nothing is written. It must also say what the decision binds
+(`--binds` or `--binds-nothing`) and what undoing it would cost (`--undo-cost` or `--cheap-to-undo`).
 
 Actor identity is derived automatically, stable name first: a Gas City
 agent's fixed slot name (`GC_AGENT`/`GC_ALIAS`) before any raw per-run
@@ -102,27 +105,27 @@ no `ANTHROPIC_API_KEY` is read from the server environment.
 
 ### Batch capture workflow
 
-1. Spawn a Haiku subagent with the classifier prompt (see `plugins/hivemind-capture/skills/hivemind-capture/SKILL.md` for the full prompt template). The subagent returns a JSON array of `CaptureItem` objects.
+1. Spawn a Haiku subagent with the classifier prompt (see `plugins/loomtracer-capture/skills/loomtracer-capture/SKILL.md` for the full prompt template). The subagent returns a JSON array of `CaptureItem` objects.
 
 2. Write the output and submit:
 
 ```bash
-cat > /tmp/hivemind-captures.json <<'EOF'
+cat > /tmp/loomtracer-captures.json <<'EOF'
 [ { "kind": "decision", "title": "...", "rationale": "...", ... } ]
 EOF
 
-HIVEMIND_AGENT_SESSION="${GC_AGENT:-${GC_ALIAS:-${CLAUDE_SESSION_ID:-${CLAUDE_CODE_SESSION_ID:-${GC_SESSION_ID:-manual-session}}}}}"
-hivemind --hivemind-dir ./hivemind/ emit ingest.batch_classified \
-  --captures /tmp/hivemind-captures.json \
+LOOMTRACER_AGENT_SESSION="${GC_AGENT:-${GC_ALIAS:-${CLAUDE_SESSION_ID:-${CLAUDE_CODE_SESSION_ID:-${GC_SESSION_ID:-manual-session}}}}}"
+loomtracer --loomtracer-dir ./loomtracer/ emit ingest.batch_classified \
+  --captures /tmp/loomtracer-captures.json \
   --agent-tool claude \
-  --agent-session "$HIVEMIND_AGENT_SESSION" \
+  --agent-session "$LOOMTRACER_AGENT_SESSION" \
   --classifier-model "claude-haiku-4-5-20251001"
 ```
 
 3. Verify the captures are visible:
 
 ```bash
-hivemind --hivemind-dir ./hivemind/ query recall --limit 5
+loomtracer --loomtracer-dir ./loomtracer/ query recall --limit 5
 ```
 
 The server's background classifier does not reprocess plugin-submitted batches —
@@ -136,8 +139,8 @@ When the server-side classifier is enabled (`ANTHROPIC_API_KEY` configured),
 `classify-queue` to inspect:
 
 ```bash
-hivemind --hivemind-dir ./hivemind/ classify-queue list
-hivemind --hivemind-dir ./hivemind/ classify-queue submit --batch-id <id>
+loomtracer --loomtracer-dir ./loomtracer/ classify-queue list
+loomtracer --loomtracer-dir ./loomtracer/ classify-queue submit --batch-id <id>
 ```
 
 Pass `--limit N` to cap the number of batches per run (default: 20).
@@ -171,7 +174,7 @@ that becomes a captured decision is the part that matters six months later.
 What your agents decided is yours to look over, one by one, in the terminal:
 
 ```bash
-hivemind review --actor 'agent:*' --since 7d --unreviewed-only
+loomtracer review --actor 'agent:*' --since 7d --unreviewed-only
 ```
 
 Approve, disagree or supersede each one; [Human Review](../human-review/) has the details.

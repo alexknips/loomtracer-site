@@ -12,14 +12,14 @@ in Docker, and an agent that connects over MCP. Your instance, your data, nothin
 
 <Steps>
 
-1. **Install Loomtracer's command-line tool, `hivemind`**
+1. **Install the command-line tool, `loomtracer`**
 
    Linux (x86_64, ARM64) and Apple Silicon Macs. The script downloads the latest release, checks its
-   SHA-256 and puts `hivemind` in `~/.local/bin`:
+   SHA-256 and puts `loomtracer` in `~/.local/bin`:
 
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/alexknips/hivemind/master/scripts/install.sh | sh
-   hivemind --version
+   curl -fsSL https://raw.githubusercontent.com/alexknips/loomtracer/master/scripts/install.sh | sh
+   loomtracer --version
    ```
 
 2. **Connect your agent**
@@ -27,10 +27,10 @@ in Docker, and an agent that connects over MCP. Your instance, your data, nothin
    In your project, for Claude Code:
 
    ```bash
-   claude mcp add hivemind -- hivemind mcp --agent-tool claude
+   claude mcp add loomtracer -- loomtracer mcp --agent-tool claude
    ```
 
-   Decisions go to `./hivemind/`, a SQLite ledger in your project. `--agent-tool claude` files your
+   Decisions go to `./loomtracer/`, a SQLite ledger in your project. `--agent-tool claude` files your
    agent's captures under Claude Code; without it they are filed under Codex. For Codex, Cursor,
    Claude Desktop or a shared `.mcp.json`, see [MCP Setup](../../guides/mcp-setup/).
 
@@ -52,21 +52,21 @@ in Docker, and an agent that connects over MCP. Your instance, your data, nothin
 
 </Steps>
 
-### If `hivemind` is not found
+### If `loomtracer` is not found
 
-If `hivemind --version` says `hivemind: not found`, your shell does not have `~/.local/bin` on its PATH
+If `loomtracer --version` says `loomtracer: not found`, your shell does not have `~/.local/bin` on its PATH
 yet. Add it, for this shell and in your shell's startup file (`~/.bashrc` or `~/.zshrc`):
 
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-Without it, `claude mcp add` still succeeds, but Claude Code cannot start `hivemind`.
+Without it, `claude mcp add` still succeeds, but Claude Code cannot start `loomtracer`.
 
 On other platforms, build it from source:
 
 ```bash
-cargo install --git https://github.com/alexknips/hivemind --locked hivemind
+cargo install --git https://github.com/alexknips/loomtracer --locked loomtracer
 ```
 
 ---
@@ -77,22 +77,25 @@ Try it in a temporary ledger first. This records a sample decision, asks for it 
 behind:
 
 ```bash
-hivemind --actor human:alice quickstart
+loomtracer --actor human:alice quickstart
 ```
 
 Then, in your project, the same decision as in step 3, and the question from step 4:
 
 ```bash
-export HIVEMIND_ACTOR=human:alice
-hivemind emit decision.capture --source human \
+export LOOMTRACER_ACTOR=human:alice
+loomtracer emit decision.capture --source human \
   --title "Use SQLite for the ledger" \
   --rationale "One file next to the app is all we need; Postgres is a server to run and back up" \
   --topic-keys storage --options sqlite,postgres --chose sqlite \
-  --rests-on-assumption "One machine is enough"
-hivemind query why "sqlite for the ledger" --summary
+  --rests-on-assumption "One machine is enough" \
+  --binds "Every later write goes to one SQLite file" --cheap-to-undo
+loomtracer query why "sqlite for the ledger" --summary
 ```
 
-The ledger is `./hivemind/ledger.sqlite`, created on the first write. `query recent --since 24h --summary`
+A capture also says what the decision binds (`--binds` or `--binds-nothing`) and what undoing it would
+cost (`--undo-cost` or `--cheap-to-undo`); one that leaves either out is refused. The ledger is
+`./loomtracer/ledger.sqlite`, created on the first write. `query recent --since 24h --summary`
 lists what was decided today, one line each. The [CLI Reference](../../reference/cli/) has every command.
 
 ### Setting the actor
@@ -100,10 +103,9 @@ lists what was decided today, one line each. The [CLI Reference](../../reference
 Every write says who made it, and Loomtracer refuses an anonymous one. An actor is `human:<name>`
 (`human:alice`, `human:alice@example.com`), `agent:<tool>:<name>` or `system:<name>`.
 
-- **In the terminal**, set `HIVEMIND_ACTOR=human:<you>` once, as above, or pass `--actor human:<you>`
-  before the command (`hivemind --actor human:alice disagree …`). Without either, `hivemind` uses
-  `human:<your git email>`, then `human:<your user name>`. `emit decision.capture` reads
-  `HIVEMIND_ACTOR` with `--source human`, or `--actor-id`, not `--actor`.
+- **In the terminal**, set `LOOMTRACER_ACTOR=human:<you>` once, as above, or pass `--actor human:<you>`
+  before the command (`loomtracer --actor human:alice disagree …`). Without either, `loomtracer` uses
+  `human:<your git email>`, then `human:<your user name>`.
 - **Over MCP**, the server records your agent as `agent:<tool>:<id>`, with the tool from
   `--agent-tool`. When the agent records a call you made, it can record you as the one who decided.
 
@@ -111,14 +113,14 @@ Every write says who made it, and Loomtracer refuses an anonymous one. An actor 
 
 ## Run a cell with Docker
 
-To share one decision record across several machines, run a self-hosted cell: the `hivemind` server with Postgres in
+To share one decision record across several machines, run a self-hosted cell: the `loomtracer` server with Postgres in
 Docker Compose, on any machine with Docker, in about five minutes.
 
 **Prerequisites:** Docker 24+ with Compose v2 (`docker compose version`). Port 8080 must be available.
 
 ```bash
 # 1. Fetch the compose cell
-git clone https://github.com/alexknips/hivemind && cd hivemind
+git clone https://github.com/alexknips/loomtracer && cd loomtracer
 
 # 2. Create your config and set strong secrets
 cp .env.example .env
@@ -142,42 +144,44 @@ hivemind    Up (healthy)             127.0.0.1:8080->8080/tcp
 postgres    Up (healthy)
 ```
 
-The port is published on `127.0.0.1`, so only this machine can reach the cell; to expose it deliberately, set `HIVEMIND_PUBLISH_ADDR` in `.env` to the interface address to publish on, or put a TLS reverse proxy in front (see [Exposing the cell deliberately](https://github.com/alexknips/hivemind/blob/master/docs/SELF_HOSTING.md#exposing-the-cell-deliberately)).
+The compose service keeps its old name, `hivemind`, so an existing cell keeps its data.
+
+The port is published on `127.0.0.1`, so only this machine can reach the cell; to expose it deliberately, set `LOOMTRACER_PUBLISH_ADDR` in `.env` to the interface address to publish on, or put a TLS reverse proxy in front (see [Exposing the cell deliberately](https://github.com/alexknips/loomtracer/blob/master/docs/SELF_HOSTING.md#exposing-the-cell-deliberately)).
 
 ### Connect your agent to the cell
 
 Provision a tenant to get your bearer token (shown once — save it):
 
 ```bash
-ADMIN_KEY=$(grep HIVEMIND_ADMIN_KEY .env | cut -d= -f2)
+ADMIN_KEY=$(grep LOOMTRACER_ADMIN_KEY .env | cut -d= -f2)
 curl -s -X POST http://localhost:8080/v1/tenants \
   -H "Authorization: Bearer $ADMIN_KEY" \
   -H "Content-Type: application/json" \
   -d '{"tenant_id": "me", "display_name": "My Team"}'
 ```
 
-The response includes `token_secret` — a value starting with `hm_tk_...`. Copy it now.
+The response includes `token_secret` — a value starting with `lt_tk_...`. Copy it now.
 
 Add the cell to Claude Code by pasting this into `.mcp.json` in your project root:
 
 ```json
 {
   "mcpServers": {
-    "hivemind": {
+    "loomtracer": {
       "url": "http://localhost:8080/mcp",
       "headers": {
-        "Authorization": "Bearer hm_tk_..."
+        "Authorization": "Bearer lt_tk_..."
       }
     }
   }
 }
 ```
 
-Reload Claude Code. The `hivemind` tools appear in your agent's tool list. The other clients are in
+Reload Claude Code. The `loomtracer` tools appear in your agent's tool list. The other clients are in
 [MCP Setup](../../guides/mcp-setup/).
 
-Without Docker, `HIVEMIND_DIR=./hivemind hivemind serve --port 8080` serves the same HTTP API and `/mcp`;
-set `HIVEMIND_API_KEY` to require a bearer token. The
+Without Docker, `LOOMTRACER_DIR=./loomtracer loomtracer serve --port 8080` serves the same HTTP API and `/mcp`;
+set `LOOMTRACER_API_KEY` to require a bearer token. The
 [self-hosting runbook](https://github.com/alexknips/loomtracer/blob/master/docs/SELF_HOSTING.md) covers
 production settings, TLS, upgrades and troubleshooting.
 
