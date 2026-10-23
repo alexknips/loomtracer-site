@@ -1,9 +1,9 @@
 name: Reference docs in sync
 
 # The docs live here; the code they describe lives in alexknips/loomtracer.
-# The site documents the LATEST hivemind RELEASE, not master: master's new
+# The site documents the LATEST loomtracer RELEASE, not master: master's new
 # flags and tools would advertise what nobody can install yet. This resolves
-# the latest release tag, builds hivemind's own generator at that tag and runs
+# the latest release tag, builds loomtracer's own generator at that tag and runs
 # its --check against this repo's website/ (the generator reads website/...
 # relative to its working directory). It fails if reference/mcp-tools.md,
 # reference/cli.md, guides/mcp-setup.md or the homepage drift from that
@@ -28,7 +28,7 @@ permissions:
 
 jobs:
   reference-docs:
-    name: Reference docs match the latest hivemind release
+    name: Reference docs match the latest loomtracer release
     runs-on: ubuntu-latest
     steps:
       - name: Check out the site
@@ -36,7 +36,7 @@ jobs:
         with:
           path: site
 
-      - name: Resolve the latest hivemind release
+      - name: Resolve the latest loomtracer release
         id: release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -44,14 +44,14 @@ jobs:
           tag=$(gh api repos/alexknips/loomtracer/releases/latest --jq .tag_name)
           test -n "$tag"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "hivemind latest release: $tag"
+          echo "loomtracer latest release: $tag"
 
-      - name: Check out hivemind at that release
+      - name: Check out loomtracer at that release
         uses: actions/checkout@v4
         with:
           repository: alexknips/loomtracer
           ref: ${{ steps.release.outputs.tag }}
-          path: hivemind
+          path: loomtracer
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -59,13 +59,13 @@ jobs:
       - name: Cache cargo artifacts
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: hivemind
-          shared-key: hivemind-generate-reference
+          workspaces: loomtracer
+          shared-key: loomtracer-generate-reference
 
-      - name: Record the hivemind commit checked against
-        working-directory: hivemind
-        run: git log -1 --format='hivemind ${{ steps.release.outputs.tag }} %H %s'
+      - name: Record the loomtracer commit checked against
+        working-directory: loomtracer
+        run: git log -1 --format='loomtracer ${{ steps.release.outputs.tag }} %H %s'
 
       - name: Check the docs against the code
         working-directory: site
-        run: cargo run --locked --manifest-path ../hivemind/Cargo.toml --bin generate-reference -- --check
+        run: cargo run --locked --manifest-path ../loomtracer/Cargo.toml --bin generate-reference -- --check

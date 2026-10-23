@@ -84,7 +84,7 @@ A new decision carries a `SUPERSEDES` edge. You can walk the full chain backward
 original proposal with:
 
 ```bash
-hivemind query get_supersession_chain --id decision:abc123
+loomtracer query get_supersession_chain --id decision:abc123
 ```
 
 ## Example graph

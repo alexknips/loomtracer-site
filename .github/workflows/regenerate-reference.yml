@@ -2,8 +2,8 @@ name: Regenerate reference docs
 
 # The generated parts of the reference (reference/mcp-tools.md, and the digits
 # of the "N tools" mentions in guides/mcp-setup.md and the homepage) come from
-# hivemind's own generate-reference binary. This regenerates them from the
-# LATEST hivemind RELEASE (the site documents what people can install, not
+# loomtracer's own generate-reference binary. This regenerates them from the
+# LATEST loomtracer RELEASE (the site documents what people can install, not
 # master), commits what changed to main, then runs the "Reference docs in
 # sync" check on the new main. Vercel deploys the push itself.
 #
@@ -31,7 +31,7 @@ concurrency:
 
 jobs:
   regenerate:
-    name: Regenerate from the latest hivemind release
+    name: Regenerate from the latest loomtracer release
     # Only main is ever regenerated; a dispatch from another branch does nothing.
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -41,7 +41,7 @@ jobs:
         with:
           path: site
 
-      - name: Resolve the latest hivemind release
+      - name: Resolve the latest loomtracer release
         id: release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -49,14 +49,14 @@ jobs:
           tag=$(gh api repos/alexknips/loomtracer/releases/latest --jq .tag_name)
           test -n "$tag"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "hivemind latest release: $tag"
+          echo "loomtracer latest release: $tag"
 
-      - name: Check out hivemind at that release
+      - name: Check out loomtracer at that release
         uses: actions/checkout@v4
         with:
           repository: alexknips/loomtracer
           ref: ${{ steps.release.outputs.tag }}
-          path: hivemind
+          path: loomtracer
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -64,16 +64,16 @@ jobs:
       - name: Cache cargo artifacts
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: hivemind
-          shared-key: hivemind-generate-reference
+          workspaces: loomtracer
+          shared-key: loomtracer-generate-reference
 
-      - name: Record the hivemind commit generated from
-        working-directory: hivemind
-        run: git log -1 --format='hivemind ${{ steps.release.outputs.tag }} %H %s'
+      - name: Record the loomtracer commit generated from
+        working-directory: loomtracer
+        run: git log -1 --format='loomtracer ${{ steps.release.outputs.tag }} %H %s'
 
       - name: Regenerate the reference
         working-directory: site
-        run: cargo run --locked --manifest-path ../hivemind/Cargo.toml --bin generate-reference
+        run: cargo run --locked --manifest-path ../loomtracer/Cargo.toml --bin generate-reference
 
       - name: Commit the generated files, and nothing else
         id: commit
