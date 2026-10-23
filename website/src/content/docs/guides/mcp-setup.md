@@ -180,7 +180,7 @@ args = ["mcp", "--agent-tool", "codex"]
 
 ## Available tools
 
-The `hivemind` MCP server exposes 27 tools. See [MCP Tools reference](../../reference/mcp-tools/)
+The `hivemind` MCP server exposes 40 tools. See [MCP Tools reference](../../reference/mcp-tools/)
 for full parameter documentation.
 
 | Tool | Type | Description |
@@ -235,6 +235,6 @@ Without the flag the server usually cannot tell which client started it, and fil
 
 ## Next steps
 
-- [MCP Tools reference](../../reference/mcp-tools/) — full parameter documentation for all 27 tools
+- [MCP Tools reference](../../reference/mcp-tools/) — full parameter documentation for all 40 tools
 - [Agent Capture guide](../agent-capture/) — how agents capture decisions automatically
 - [Quickstart](../../getting-started/quickstart/) — install the binary, or run your own cell with Docker
